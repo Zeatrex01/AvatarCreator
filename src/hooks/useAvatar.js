@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { createAvatar } from '@dicebear/core';
 import { avataaars } from '@dicebear/collection';
-import { SCHEMA, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR, ADVENTURER_MALE_HAIR, ADVENTURER_FEMALE_HAIR, MICAH_MALE_HAIR, MICAH_FEMALE_HAIR, MICAH_UNISEX_HAIR, PIXELART_MALE_HAIR, PIXELART_FEMALE_HAIR } from '../utils/constants';
+import { SCHEMA, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR } from '../utils/constants';
 
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -10,8 +10,6 @@ export function useAvatar() {
   const [genderFilter, setGenderFilter] = useState('any');
   const [characterName, setCharacterName] = useState('');
   const [activeCharacterId, setActiveCharacterId] = useState(null);
-  const [activeCollectionName, setActiveCollectionName] = useState('avataaars');
-  
   const [options, setOptions] = useState({
     backgroundColor: ['transparent'],
   });
@@ -26,36 +24,15 @@ export function useAvatar() {
       backgroundColor: options.backgroundColor || ['transparent']
     };
 
-    if (activeCollectionName === 'avataaars') {
-      if (gender === 'male') {
-        newOptions.top = [pickRandom([...MALE_HAIR, ...UNISEX_HAIR])];
-        newOptions.facialHair = Math.random() > 0.6 ? [pickRandom(SCHEMA.facialHair)] : [];
-      } else if (gender === 'female') {
-        newOptions.top = [pickRandom([...FEMALE_HAIR, ...UNISEX_HAIR])];
-        newOptions.facialHair = ["none"];
-      } else {
-        newOptions.top = [];
-        newOptions.facialHair = [];
-      }
-    } else if (activeCollectionName === 'adventurer') {
-      if (gender === 'male') {
-        newOptions.hair = [pickRandom(ADVENTURER_MALE_HAIR)];
-      } else if (gender === 'female') {
-        newOptions.hair = [pickRandom(ADVENTURER_FEMALE_HAIR)];
-      } else {
-        newOptions.hair = [];
-      }
-    } else if (activeCollectionName === 'micah') {
-      if (gender === 'male') {
-        newOptions.hair = [pickRandom([...MICAH_MALE_HAIR, ...MICAH_UNISEX_HAIR])];
-        newOptions.facialHair = Math.random() > 0.5 ? ['beard', 'scruff'][Math.floor(Math.random() * 2)] : [];
-      } else if (gender === 'female') {
-        newOptions.hair = [pickRandom([...MICAH_FEMALE_HAIR, ...MICAH_UNISEX_HAIR])];
-        newOptions.facialHair = [];
-      } else {
-        newOptions.hair = [];
-        newOptions.facialHair = [];
-      }
+    if (gender === 'male') {
+      newOptions.top = [pickRandom([...MALE_HAIR, ...UNISEX_HAIR])];
+      newOptions.facialHair = Math.random() > 0.6 ? [pickRandom(SCHEMA.facialHair)] : [];
+    } else if (gender === 'female') {
+      newOptions.top = [pickRandom([...FEMALE_HAIR, ...UNISEX_HAIR])];
+      newOptions.facialHair = ["none"];
+    } else {
+      newOptions.top = [];
+      newOptions.facialHair = [];
     }
 
     setOptions(newOptions);
@@ -70,31 +47,13 @@ export function useAvatar() {
     setOptions(prev => {
       const opts = { ...prev };
       
-      if (activeCollectionName === 'avataaars') {
-        switch(emotion) {
-          case 'happy': opts.eyes = ['happy']; opts.mouth = ['smile']; opts.eyebrows = ['defaultNatural']; break;
-          case 'angry': opts.eyes = ['squint']; opts.mouth = ['serious']; opts.eyebrows = ['angryNatural']; break;
-          case 'sad': opts.eyes = ['cry']; opts.mouth = ['sad']; opts.eyebrows = ['sadConcernedNatural']; break;
-          case 'surprised': opts.eyes = ['surprised']; opts.mouth = ['disbelief']; opts.eyebrows = ['raisedExcitedNatural']; break;
-          case 'default': opts.eyes = ['default']; opts.mouth = ['default']; opts.eyebrows = ['defaultNatural']; break;
-          default: break;
-        }
-      } else if (activeCollectionName === 'micah') {
-        switch(emotion) {
-          case 'happy': opts.eyes = ['smiling']; opts.mouth = ['smile', 'laughing']; break;
-          case 'angry': opts.eyes = ['round']; opts.eyebrows = ['angry']; break;
-          case 'sad': opts.mouth = ['sad', 'pucker']; break;
-          case 'surprised': opts.mouth = ['surprised']; break;
-          default: opts.eyes = []; opts.mouth = []; opts.eyebrows = []; break;
-        }
-      } else if (activeCollectionName === 'adventurer') {
-        switch(emotion) {
-          case 'happy': opts.mouth = ['variant02', 'variant26']; break;
-          case 'angry': opts.mouth = ['variant12', 'variant22']; break;
-          case 'sad': opts.mouth = ['variant08', 'variant14']; break;
-          case 'surprised': opts.mouth = ['variant24', 'variant16']; break;
-          default: opts.mouth = []; break;
-        }
+      switch(emotion) {
+        case 'happy': opts.eyes = ['happy']; opts.mouth = ['smile']; opts.eyebrows = ['defaultNatural']; break;
+        case 'angry': opts.eyes = ['squint']; opts.mouth = ['serious']; opts.eyebrows = ['angryNatural']; break;
+        case 'sad': opts.eyes = ['cry']; opts.mouth = ['sad']; opts.eyebrows = ['sadConcernedNatural']; break;
+        case 'surprised': opts.eyes = ['surprised']; opts.mouth = ['disbelief']; opts.eyebrows = ['raisedExcitedNatural']; break;
+        case 'default': opts.eyes = ['default']; opts.mouth = ['default']; opts.eyebrows = ['defaultNatural']; break;
+        default: break;
       }
       return opts;
     });
@@ -106,19 +65,10 @@ export function useAvatar() {
     setCharacterName(char.name);
     setGenderFilter(char.gender || 'any');
     setActiveCharacterId(char.id);
-    if (char.collectionName) {
-      setActiveCollectionName(char.collectionName);
-    }
   };
 
   const handleOptionChange = (key, value) => {
     setOptions(prev => ({ ...prev, [key]: value ? [value] : [] }));
-  };
-
-  // When collection changes, clear options
-  const handleCollectionChange = (col) => {
-    setActiveCollectionName(col);
-    setOptions({ backgroundColor: options.backgroundColor || ['transparent'] });
   };
 
   return {
@@ -126,7 +76,6 @@ export function useAvatar() {
     genderFilter, setGenderFilter,
     characterName, setCharacterName,
     activeCharacterId, setActiveCharacterId,
-    activeCollectionName, setActiveCollectionName: handleCollectionChange,
     options, setOptions,
     handleOptionChange,
     applyGenderToRandomization,

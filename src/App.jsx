@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { createAvatar } from '@dicebear/core';
-import { avataaars, adventurer, micah, pixelArt } from '@dicebear/collection';
+import { avataaars } from '@dicebear/collection';
 import { Grid, Image as ImageIcon, Library, Scissors } from 'lucide-react';
 
 import Navbar from './components/Navbar';
@@ -14,7 +14,7 @@ import AboutModal from './components/AboutModal';
 
 import { useAvatar } from './hooks/useAvatar';
 import { useLibrary } from './hooks/useLibrary';
-import { PROPERTY_DICTIONARY, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR, ADVENTURER_MALE_HAIR, ADVENTURER_FEMALE_HAIR, MICAH_MALE_HAIR, MICAH_FEMALE_HAIR, MICAH_UNISEX_HAIR, PIXELART_MALE_HAIR, PIXELART_FEMALE_HAIR } from './utils/constants';
+import { PROPERTY_DICTIONARY, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR } from './utils/constants';
 
 function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -31,7 +31,6 @@ function App() {
     genderFilter,
     characterName, setCharacterName,
     activeCharacterId, setActiveCharacterId,
-    activeCollectionName, setActiveCollectionName,
     options,
     handleOptionChange,
     applyGenderToRandomization,
@@ -98,8 +97,7 @@ function App() {
     return payload;
   };
 
-  const collections = { avataaars, adventurer, micah, pixelArt };
-  const activeCollection = collections[activeCollectionName] || avataaars;
+  const activeCollection = avataaars;
 
   const dicebearOptions = useMemo(() => getPayloadFromOptions(options), [seed, options, genderFilter]);
   const avatarSvg = useMemo(() => createAvatar(activeCollection, dicebearOptions).toString(), [dicebearOptions, activeCollection]);
@@ -187,7 +185,7 @@ function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${activeCollectionName}_blueprint.svg`;
+    link.download = `avataaars_blueprint.svg`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -253,38 +251,20 @@ function App() {
 
     // Filter logic for avataaars specific things
     return tabs.filter(t => {
-      if (activeCollectionName === 'avataaars') {
-        if (genderFilter === 'female' && t.id === 'facialHair') return false;
-        if (t.id === 'clothingGraphic' && options.clothing?.[0] !== 'graphicShirt') return false;
-      }
+      if (genderFilter === 'female' && t.id === 'facialHair') return false;
+      if (t.id === 'clothingGraphic' && options.clothing?.[0] !== 'graphicShirt') return false;
       return true;
     });
-  }, [activeCollection, activeCollectionName, genderFilter, options.clothing]);
+  }, [activeCollection, genderFilter, options.clothing]);
 
   const activeTabData = visibleTabs.find(t => t.id === activeTab) || visibleTabs[0] || { id: 'default', options: [], colorKeys: [] };
 
   let displayedOptions = activeTabData.options;
-  if (activeCollectionName === 'avataaars' && activeTabData.id === 'top') {
+  if (activeTabData.id === 'top') {
     if (genderFilter === 'male') {
       displayedOptions = ['none', ...MALE_HAIR, ...UNISEX_HAIR];
     } else if (genderFilter === 'female') {
       displayedOptions = ['none', ...FEMALE_HAIR, ...UNISEX_HAIR];
-    }
-  } else if (activeCollectionName === 'adventurer' && activeTabData.id === 'hair') {
-    if (genderFilter === 'male') {
-      displayedOptions = ADVENTURER_MALE_HAIR;
-    } else if (genderFilter === 'female') {
-      displayedOptions = ADVENTURER_FEMALE_HAIR;
-    }
-  } else if (activeCollectionName === 'micah') {
-    if (activeTabData.id === 'hair') {
-      if (genderFilter === 'male') {
-        displayedOptions = [...MICAH_MALE_HAIR, ...MICAH_UNISEX_HAIR];
-      } else if (genderFilter === 'female') {
-        displayedOptions = [...MICAH_FEMALE_HAIR, ...MICAH_UNISEX_HAIR];
-      }
-    } else if (activeTabData.id === 'facialHair' && genderFilter === 'female') {
-      displayedOptions = [];
     }
   }
 
@@ -311,8 +291,6 @@ function App() {
           handleDownloadSVG={handleDownloadSVG}
           handleDownloadPNG={handleDownloadPNG}
           handleDownloadTemplate={handleDownloadTemplate}
-          activeCollectionName={activeCollectionName}
-          setActiveCollectionName={setActiveCollectionName}
         />
 
         <OptionsGrid

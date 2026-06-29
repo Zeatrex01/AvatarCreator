@@ -43,18 +43,6 @@ export default function PreviewPane({
           className="bg-transparent text-center text-xl lg:text-2xl font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-0 border-b-2 border-transparent focus:border-indigo-500 transition-colors px-2 py-1 w-2/3 lg:w-3/4"
         />
 
-        {/* Collection/Style Toggle */}
-        <div className="flex bg-slate-100/80 backdrop-blur-sm p-1 rounded-full shadow-inner border border-slate-200">
-          {['avataaars', 'adventurer', 'micah'].map(col => (
-            <button
-              key={col}
-              onClick={() => setActiveCollectionName(col)}
-              className={`px-3 py-1 text-xs font-semibold rounded-full capitalize transition-all ${activeCollectionName === col ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
-            >
-              {col}
-            </button>
-          ))}
-        </div>
       </div>
       
       <div className="w-full space-y-3 lg:space-y-4">
