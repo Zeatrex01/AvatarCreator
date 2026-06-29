@@ -86,7 +86,7 @@ export default function PreviewPane({
           Randomize
         </button>
 
-        <div className="grid grid-cols-2 gap-2 pt-4 border-t border-slate-100">
+        <div className="hidden lg:grid grid-cols-2 gap-2 pt-4 border-t border-slate-100">
           <button 
             onClick={handleDownloadSVG}
             className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600"

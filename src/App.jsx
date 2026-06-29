@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { createAvatar } from '@dicebear/core';
 import { avataaars } from '@dicebear/collection';
+import { Grid, Image as ImageIcon, Library } from 'lucide-react';
 
 import Navbar from './components/Navbar';
 import PreviewPane from './components/PreviewPane';
@@ -181,7 +182,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans pb-16 lg:pb-0">
       
       <Navbar 
         onOpenSpriteTool={() => setIsSpriteToolOpen(true)}
@@ -229,6 +230,39 @@ function App() {
           isExporting={isExporting}
         />
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-40 flex items-center justify-around px-2 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <button 
+          onClick={() => setIsSpriteToolOpen(true)}
+          className="flex flex-col items-center justify-center p-2 text-slate-500 hover:text-indigo-600 transition-colors"
+        >
+          <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1">
+            <Grid size={18} className="text-emerald-600" />
+          </div>
+          <span className="text-[10px] font-medium">Sprite Tool</span>
+        </button>
+
+        <button 
+          onClick={handleDownloadPNG}
+          className="flex flex-col items-center justify-center p-2 text-slate-500 hover:text-indigo-600 transition-colors"
+        >
+          <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center mb-1">
+            <ImageIcon size={18} className="text-indigo-600" />
+          </div>
+          <span className="text-[10px] font-medium">Export</span>
+        </button>
+
+        <button 
+          onClick={() => setIsLibraryOpen(true)}
+          className="flex flex-col items-center justify-center p-2 text-slate-500 hover:text-indigo-600 transition-colors"
+        >
+          <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center mb-1">
+            <Library size={18} className="text-purple-600" />
+          </div>
+          <span className="text-[10px] font-medium">Library</span>
+        </button>
+      </div>
 
       <SpriteToolModal 
         isOpen={isSpriteToolOpen} 

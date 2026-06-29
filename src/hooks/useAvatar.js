@@ -13,7 +13,7 @@ export function useAvatar() {
   
   const [options, setOptions] = useState({
     style: ['circle'],
-    top: [], accessories: [], clothing: [], clothingGraphic: [], eyes: [], eyebrows: [], mouth: [], facialHair: [],
+    top: ['none'], accessories: ['none'], clothing: ['shirtCrewNeck'], clothingGraphic: ['none'], eyes: ['default'], eyebrows: ['defaultNatural'], mouth: ['default'], facialHair: ['none'],
     skinColor: [], hairColor: [], facialHairColor: [], clothesColor: [], accessoriesColor: [], backgroundColor: ['transparent'],
   });
 

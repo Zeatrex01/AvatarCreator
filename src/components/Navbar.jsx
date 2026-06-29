@@ -10,7 +10,7 @@ export default function Navbar({ onOpenSpriteTool, onToggleLibrary, onOpenAbout 
         </div>
         <h1 className="text-lg font-bold text-slate-800">Avatar Playground</h1>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="hidden lg:flex items-center gap-3">
         <button 
           onClick={onOpenSpriteTool}
           className="flex items-center gap-2 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg font-medium transition-colors"
