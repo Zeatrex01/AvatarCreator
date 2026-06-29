@@ -12,7 +12,9 @@ export default function PreviewPane({
   applyGenderToRandomization,
   handleDownloadSVG,
   handleDownloadPNG,
-  handleDownloadTemplate
+  handleDownloadTemplate,
+  activeCollectionName,
+  setActiveCollectionName
 }) {
   return (
     <div className="w-full lg:w-[400px] shrink-0 border-b-0 lg:border-r border-slate-200 bg-transparent lg:bg-white p-4 lg:p-6 flex flex-col items-center justify-start z-10 shadow-none lg:shadow-none">

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { createAvatar } from '@dicebear/core';
-import { avataaars } from '@dicebear/collection';
+import { avataaars, adventurer, micah, pixelArt } from '@dicebear/collection';
 import { Grid, Image as ImageIcon, Library, Scissors } from 'lucide-react';
 
 import Navbar from './components/Navbar';
@@ -95,8 +95,12 @@ function App() {
     return payload;
   };
 
+  const collections = { avataaars, adventurer, micah, pixelArt };
+  const [activeCollectionName, setActiveCollectionName] = useState('avataaars');
+  const activeCollection = collections[activeCollectionName];
+
   const dicebearOptions = useMemo(() => getPayloadFromOptions(options), [seed, options, genderFilter]);
-  const avatarSvg = useMemo(() => createAvatar(avataaars, dicebearOptions).toString(), [dicebearOptions]);
+  const avatarSvg = useMemo(() => createAvatar(activeCollection, dicebearOptions).toString(), [dicebearOptions, activeCollection]);
 
   const handleDownloadSVG = () => {
     const blob = new Blob([avatarSvg], { type: 'image/svg+xml' });
@@ -146,7 +150,7 @@ function App() {
       accessories: ['none'],
       facialHair: ['none']
     };
-    let templateSvg = createAvatar(avataaars, payload).toString();
+    let templateSvg = createAvatar(activeCollection, payload).toString();
     
     // Attempt to remove facial features by stripping specific paths if possible, 
     // or just let the user delete the default face in Illustrator.
@@ -174,7 +178,7 @@ function App() {
       for (const char of library) {
         const payload = getPayloadFromOptions(char.options, char.seed, char.gender || 'any');
         payload.size = exportResolution;
-        const avatar = createAvatar(avataaars, payload);
+        const avatar = createAvatar(activeCollection, payload);
         const svgString = avatar.toString();
         const blob = await svgToPngBlob(svgString, exportResolution);
         
@@ -232,6 +236,8 @@ function App() {
           handleDownloadSVG={handleDownloadSVG}
           handleDownloadPNG={handleDownloadPNG}
           handleDownloadTemplate={handleDownloadTemplate}
+          activeCollectionName={activeCollectionName}
+          setActiveCollectionName={setActiveCollectionName}
         />
 
         <OptionsGrid
