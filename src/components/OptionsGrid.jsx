@@ -1,8 +1,7 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import { createAvatar } from '@dicebear/core';
-import { avataaars } from '@dicebear/collection';
-import { COLORS, COLOR_LABELS } from '../utils/constants';
+import { PROPERTY_DICTIONARY } from '../utils/constants';
 
 export default function OptionsGrid({
   visibleTabs,
@@ -12,7 +11,8 @@ export default function OptionsGrid({
   options,
   handleOptionChange,
   displayedOptions,
-  getPayloadFromOptions
+  getPayloadFromOptions,
+  activeCollection
 }) {
   return (
     <div className="flex-1 bg-slate-50 flex flex-col overflow-hidden relative min-h-0 rounded-t-[2rem] lg:rounded-none shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.15)] lg:shadow-none z-20 mt-2 lg:mt-0">
@@ -42,9 +42,13 @@ export default function OptionsGrid({
           
           {activeTabData.colorKeys.length > 0 && (
             <div className="flex flex-wrap gap-8">
-              {activeTabData.colorKeys.map(colorKey => (
+              {activeTabData.colorKeys.map(colorKey => {
+                const colorOptions = activeCollection?.schema?.properties?.[colorKey]?.default || [];
+                const label = PROPERTY_DICTIONARY[colorKey]?.label || colorKey;
+                
+                return (
                 <div key={colorKey} className="space-y-2">
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{COLOR_LABELS[colorKey]}</h3>
+                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</h3>
                   <div className="flex flex-wrap gap-1.5 max-w-sm">
                     <button 
                       onClick={() => handleOptionChange(colorKey, '')}
@@ -53,7 +57,7 @@ export default function OptionsGrid({
                     >
                       <span className="text-[10px] text-slate-500">Auto</span>
                     </button>
-                    {COLORS[colorKey].map(color => (
+                    {colorOptions.map(color => (
                       <button
                         key={color}
                         onClick={() => handleOptionChange(colorKey, color)}
@@ -69,7 +73,7 @@ export default function OptionsGrid({
                     ))}
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )}
 
@@ -83,7 +87,7 @@ export default function OptionsGrid({
               const payload = getPayloadFromOptions(thumbOpts);
               payload.size = 128; 
               
-              const thumbSvg = createAvatar(avataaars, payload).toString();
+              const thumbSvg = createAvatar(activeCollection, payload).toString();
 
               return (
                 <button

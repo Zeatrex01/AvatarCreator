@@ -14,7 +14,7 @@ import AboutModal from './components/AboutModal';
 
 import { useAvatar } from './hooks/useAvatar';
 import { useLibrary } from './hooks/useLibrary';
-import { TABS, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR } from './utils/constants';
+import { PROPERTY_DICTIONARY, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR } from './utils/constants';
 
 function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -160,11 +160,32 @@ function App() {
     templateSvg = templateSvg.replace(/<g transform="translate\(76 90\)">(.*?)<\/g>/g, ''); // Eyes area approx
     templateSvg = templateSvg.replace(/<g transform="translate\(76 82\)">(.*?)<\/g>/g, ''); // Eyebrows approx
     
+    const overlay = `
+      <g id="blueprint-guide" opacity="0.6">
+        <!-- Grid -->
+        <path d="M 50% 0 L 50% 100%" stroke="#ff00ff" stroke-width="1" stroke-dasharray="4 4" />
+        <path d="M 0 50% L 100% 50%" stroke="#ff00ff" stroke-width="1" stroke-dasharray="4 4" />
+        <!-- Eye Zones -->
+        <rect x="25%" y="40%" width="20%" height="15%" fill="none" stroke="#00ffff" stroke-width="2" stroke-dasharray="2 2" />
+        <rect x="55%" y="40%" width="20%" height="15%" fill="none" stroke="#00ffff" stroke-width="2" stroke-dasharray="2 2" />
+        <text x="35%" y="38%" font-family="monospace" font-size="12" fill="#00ffff" text-anchor="middle">EYE_L</text>
+        <text x="65%" y="38%" font-family="monospace" font-size="12" fill="#00ffff" text-anchor="middle">EYE_R</text>
+        <!-- Mouth Zone -->
+        <rect x="35%" y="65%" width="30%" height="15%" fill="none" stroke="#00ff00" stroke-width="2" stroke-dasharray="2 2" />
+        <text x="50%" y="63%" font-family="monospace" font-size="12" fill="#00ff00" text-anchor="middle">MOUTH</text>
+        <!-- Accessory Zone -->
+        <rect x="20%" y="35%" width="60%" height="25%" fill="none" stroke="#ffaa00" stroke-width="1" stroke-dasharray="4 4" />
+        <text x="50%" y="33%" font-family="monospace" font-size="12" fill="#ffaa00" text-anchor="middle">GLASSES/ACCESSORY</text>
+      </g>
+    `;
+
+    templateSvg = templateSvg.replace('</svg>', `${overlay}</svg>`);
+
     const blob = new Blob([templateSvg], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `avatar_base_template.svg`;
+    link.download = `${activeCollectionName}_blueprint.svg`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -195,17 +216,53 @@ function App() {
     }
   };
 
-  const visibleTabs = TABS.filter(t => {
-    if (genderFilter === 'female' && t.id === 'facialHair') return false;
-    if (t.id === 'clothingGraphic' && options.clothing?.[0] !== 'graphicShirt') return false;
-    return true;
-  });
+  const visibleTabs = useMemo(() => {
+    const props = activeCollection.schema.properties;
+    const tabs = [];
+    const colorKeys = [];
 
-  const activeTabData = visibleTabs.find(t => t.id === activeTab) || visibleTabs[0];
+    // First find all color array properties
+    Object.keys(props).forEach(key => {
+      if (props[key].type === 'array' && props[key].items && props[key].items.pattern) {
+        colorKeys.push(key);
+      }
+    });
+
+    // Then find main shape categories
+    Object.keys(props).forEach(key => {
+      if (props[key].type === 'array' && props[key].items && props[key].items.enum && !key.toLowerCase().includes('probability')) {
+        const associatedColors = colorKeys.filter(c => c.startsWith(key) || (key === 'top' && c === 'hairColor') || (key === 'clothing' && c === 'clothesColor'));
+        tabs.push({
+          id: key,
+          label: PROPERTY_DICTIONARY[key] ? PROPERTY_DICTIONARY[key].label : key,
+          icon: PROPERTY_DICTIONARY[key] ? PROPERTY_DICTIONARY[key].icon : 'Settings',
+          options: props[key].default || props[key].items.enum || [],
+          colorKeys: associatedColors
+        });
+      }
+    });
+
+    // Handle standalone colors (like skinColor, baseColor) by attaching them to the first tab
+    const usedColors = new Set(tabs.flatMap(t => t.colorKeys));
+    const standaloneColors = colorKeys.filter(c => !usedColors.has(c));
+    if (tabs.length > 0 && standaloneColors.length > 0) {
+      tabs[0].colorKeys = [...standaloneColors, ...tabs[0].colorKeys];
+    }
+
+    // Filter logic for avataaars specific things
+    return tabs.filter(t => {
+      if (activeCollectionName === 'avataaars') {
+        if (genderFilter === 'female' && t.id === 'facialHair') return false;
+        if (t.id === 'clothingGraphic' && options.clothing?.[0] !== 'graphicShirt') return false;
+      }
+      return true;
+    });
+  }, [activeCollection, activeCollectionName, genderFilter, options.clothing]);
+
+  const activeTabData = visibleTabs.find(t => t.id === activeTab) || visibleTabs[0] || { id: 'default', options: [], colorKeys: [] };
 
   let displayedOptions = activeTabData.options;
-  if (activeTabData.id === 'top') {
-    // Top options are pre-filtered inside useAvatar and constants, but we need to compute it here based on constants
+  if (activeCollectionName === 'avataaars' && activeTabData.id === 'top') {
     if (genderFilter === 'male') {
       displayedOptions = ['none', ...MALE_HAIR, ...UNISEX_HAIR];
     } else if (genderFilter === 'female') {
@@ -249,6 +306,7 @@ function App() {
           handleOptionChange={handleOptionChange}
           displayedOptions={displayedOptions}
           getPayloadFromOptions={getPayloadFromOptions}
+          activeCollection={activeCollection}
         />
 
         <LibrarySidebar
