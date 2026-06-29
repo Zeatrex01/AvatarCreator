@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Users, Smile, Frown, Angry, Zap, AlertCircle, Save, Dices, Download, Image as ImageIcon } from 'lucide-react';
+import { User, Users, Smile, Frown, Angry, Zap, AlertCircle, Save, Dices, Download, Image as ImageIcon, Scissors } from 'lucide-react';
 
 export default function PreviewPane({
   genderFilter,
@@ -11,7 +11,8 @@ export default function PreviewPane({
   saveCurrentCharacter,
   applyGenderToRandomization,
   handleDownloadSVG,
-  handleDownloadPNG
+  handleDownloadPNG,
+  handleDownloadTemplate
 }) {
   return (
     <div className="w-full lg:w-[400px] shrink-0 border-b-0 lg:border-r border-slate-200 bg-transparent lg:bg-white p-4 lg:p-6 flex flex-col items-center justify-start z-10 shadow-none lg:shadow-none">
@@ -96,9 +97,18 @@ export default function PreviewPane({
         </button>
 
         {/* Desktop Only: Export */}
-        <div className="hidden lg:grid grid-cols-2 gap-2 pt-4 border-t border-slate-100">
-          <button onClick={handleDownloadSVG} className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600"><Download size={16} /> SVG</button>
-          <button onClick={handleDownloadPNG} className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600"><ImageIcon size={16} /> PNG</button>
+        <div className="hidden lg:flex flex-col gap-2 pt-4 border-t border-slate-100">
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={handleDownloadSVG} className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600"><Download size={16} /> SVG</button>
+            <button onClick={handleDownloadPNG} className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-600"><ImageIcon size={16} /> PNG</button>
+          </div>
+          <button 
+            onClick={handleDownloadTemplate} 
+            className="flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-indigo-600"
+            title="Download blank base template to draw your own assets in Illustrator"
+          >
+            <Scissors size={16} /> Şablon İndir (Base SVG)
+          </button>
         </div>
 
       </div>

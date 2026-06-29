@@ -137,6 +137,36 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadTemplate = () => {
+    // Generate a bald, faceless-ready base template
+    const payload = {
+      seed: 'base_template',
+      size: 1024,
+      top: ['none'],
+      accessories: ['none'],
+      facialHair: ['none'],
+      clothing: ['shirtCrewNeck'],
+      skinColor: ['f8d25c'], // default skin
+    };
+    let templateSvg = createAvatar(avataaars, payload).toString();
+    
+    // Attempt to remove facial features by stripping specific paths if possible, 
+    // or just let the user delete the default face in Illustrator.
+    // For a truly "faceless" look, we can remove the groups that draw eyes/mouth/eyebrows.
+    // A quick hack for the 'default' face paths:
+    templateSvg = templateSvg.replace(/<g transform="translate\(78 134\)">(.*?)<\/g>/g, ''); // Mouth area approx
+    templateSvg = templateSvg.replace(/<g transform="translate\(76 90\)">(.*?)<\/g>/g, ''); // Eyes area approx
+    templateSvg = templateSvg.replace(/<g transform="translate\(76 82\)">(.*?)<\/g>/g, ''); // Eyebrows approx
+    
+    const blob = new Blob([templateSvg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `avatar_base_template.svg`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleExportZip = async () => {
     if (library.length === 0) return;
     setIsExporting(true);
@@ -203,6 +233,7 @@ function App() {
           applyGenderToRandomization={applyGenderToRandomization}
           handleDownloadSVG={handleDownloadSVG}
           handleDownloadPNG={handleDownloadPNG}
+          handleDownloadTemplate={handleDownloadTemplate}
         />
 
         <OptionsGrid
@@ -232,7 +263,7 @@ function App() {
       </main>
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-40 flex items-center justify-around px-2 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-40 flex items-center justify-around px-1 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <button 
           onClick={() => setIsSpriteToolOpen(true)}
           className="flex flex-col items-center justify-center p-2 text-slate-500 hover:text-indigo-600 transition-colors"
@@ -240,7 +271,17 @@ function App() {
           <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1">
             <Grid size={18} className="text-emerald-600" />
           </div>
-          <span className="text-[10px] font-medium">Sprite Tool</span>
+          <span className="text-[10px] font-medium">Sprite</span>
+        </button>
+
+        <button 
+          onClick={handleDownloadTemplate}
+          className="flex flex-col items-center justify-center p-2 text-slate-500 hover:text-indigo-600 transition-colors"
+        >
+          <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mb-1">
+            <Scissors size={18} className="text-blue-600" />
+          </div>
+          <span className="text-[10px] font-medium">Şablon</span>
         </button>
 
         <button 
