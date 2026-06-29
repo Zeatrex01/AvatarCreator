@@ -50,6 +50,7 @@
     "electron-builder": "^26.15.3",
     "oxlint": "^1.69.0",
     "vite": "^8.1.0",
+    "vite-plugin-pwa": "^1.3.0",
     "wait-on": "^9.0.10"
   }
 }
