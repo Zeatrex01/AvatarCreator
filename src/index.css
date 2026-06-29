@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+@theme {
+  --color-border: hsl(240 3.7% 15.9%);
+}
