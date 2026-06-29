@@ -13,17 +13,21 @@ echo   [2] Clear Cache (Vite Cache ^& Dist)
 echo   [3] Check Code (Lint)
 echo   [4] Prepare for Production (Build)
 echo   [5] Update Dependencies (npm install)
-echo   [6] Exit
+echo   [6] Start Desktop App (Electron Dev)
+echo   [7] Build Desktop App (Electron Exe)
+echo   [8] Exit
 echo.
 echo ===================================================
-set /p choice="Select an operation [1-6]: "
+set /p choice="Select an operation [1-8]: "
 
 if "%choice%"=="1" goto start
 if "%choice%"=="2" goto cache
 if "%choice%"=="3" goto lint
 if "%choice%"=="4" goto build
 if "%choice%"=="5" goto install
-if "%choice%"=="6" exit
+if "%choice%"=="6" goto start_electron
+if "%choice%"=="7" goto build_electron
+if "%choice%"=="8" exit
 
 :start
 cls
@@ -74,5 +78,21 @@ echo Checking and installing dependencies...
 call npm install --legacy-peer-deps
 echo.
 echo [SUCCESS] Installation completed.
+pause
+goto menu
+
+:start_electron
+cls
+echo Starting Desktop App (Electron)...
+call npm run dev:electron
+pause
+goto menu
+
+:build_electron
+cls
+echo Building Desktop App (.exe)...
+call npm run build:electron
+echo.
+echo [SUCCESS] Build completed. Output is in the "dist-electron" folder.
 pause
 goto menu
