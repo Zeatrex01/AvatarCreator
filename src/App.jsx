@@ -3,7 +3,7 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { createAvatar } from '@dicebear/core';
 import { avataaars } from '@dicebear/collection';
-import { Grid, Image as ImageIcon, Library } from 'lucide-react';
+import { Grid, Image as ImageIcon, Library, Scissors } from 'lucide-react';
 
 import Navbar from './components/Navbar';
 import PreviewPane from './components/PreviewPane';
@@ -138,15 +138,13 @@ function App() {
   };
 
   const handleDownloadTemplate = () => {
-    // Generate a bald, faceless-ready base template
+    // Generate a bald, faceless-ready base template using current character's colors
     const payload = {
-      seed: 'base_template',
+      ...dicebearOptions,
       size: 1024,
       top: ['none'],
       accessories: ['none'],
-      facialHair: ['none'],
-      clothing: ['shirtCrewNeck'],
-      skinColor: ['f8d25c'], // default skin
+      facialHair: ['none']
     };
     let templateSvg = createAvatar(avataaars, payload).toString();
     
