@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
 import { avataaars } from '@dicebear/collection';
-import { Download, Dices, Image as ImageIcon, Save, Trash2, Library, UserCircle, X, Check, User, Users, FolderArchive, Smile, Frown, Angry, AlertCircle, Grid } from 'lucide-react';
+import { Download, Dices, Image as ImageIcon, Save, Trash2, Library, UserCircle, X, Check, User, Users, FolderArchive, Smile, Frown, Angry, AlertCircle, Grid, Search, Upload, Info } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import SpriteToolModal from './components/SpriteToolModal';
+import AboutModal from './components/AboutModal';
 
 const SCHEMA = {
   top: ["hat", "hijab", "turban", "winterHat1", "winterHat02", "winterHat03", "winterHat04", "bob", "bun", "curly", "curvy", "dreads", "frida", "fro", "froBand", "longButNotTooLong", "miaWallace", "shavedSides", "straight02", "straight01", "straightAndStrand", "dreads01", "dreads02", "frizzle", "shaggy", "shaggyMullet", "shortCurly", "shortFlat", "shortRound", "shortWaved", "sides", "theCaesar", "theCaesarAndSidePart", "bigHair"],
@@ -62,6 +63,8 @@ function App() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportResolution, setExportResolution] = useState(512);
   const [isSpriteToolOpen, setIsSpriteToolOpen] = useState(false);
+  const [librarySearch, setLibrarySearch] = useState('');
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   
   const [options, setOptions] = useState({
     style: ['circle'],
@@ -406,6 +409,13 @@ function App() {
             <Library size={18} />
             <span className="hidden sm:inline">My Library</span>
           </button>
+          <button 
+            onClick={() => setIsAboutOpen(true)}
+            className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors ml-2 border border-transparent hover:border-indigo-100"
+            title="About & Credits"
+          >
+            <Info size={20} />
+          </button>
         </div>
       </nav>
 
@@ -599,57 +609,100 @@ function App() {
         {/* Library Slide-over Modal */}
         {isLibraryOpen && (
           <div className="absolute inset-0 z-50 flex justify-end">
-            <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsLibraryOpen(false)} />
-            <div className="relative w-full max-w-sm bg-white border-l border-slate-200 shadow-2xl h-full flex flex-col">
-              <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-                <div className="flex items-center gap-2">
-                  <Library size={18} className="text-indigo-600" />
-                  <h2 className="font-semibold text-slate-800">My Library</h2>
+            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setIsLibraryOpen(false)} />
+            <div className="relative w-full max-w-md bg-white/95 backdrop-blur-3xl border-l border-white/20 shadow-2xl h-full flex flex-col">
+              {/* Premium Header */}
+              <div className="p-6 border-b border-slate-200/60 bg-gradient-to-b from-slate-50/50 to-transparent">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                      <Library size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-slate-800 tracking-tight">My Library</h2>
+                      <p className="text-xs text-slate-500 font-medium">{library.length} saved characters</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setIsLibraryOpen(false)} className="p-2.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 rounded-xl transition-all">
+                    <X size={20} />
+                  </button>
                 </div>
-                <button onClick={() => setIsLibraryOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-lg transition-colors">
-                  <X size={18} />
-                </button>
+
+                {/* Search Bar */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Search size={16} className="text-slate-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search characters..."
+                    value={librarySearch}
+                    onChange={(e) => setLibrarySearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-100/50 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all placeholder:text-slate-400 font-medium"
+                  />
+                </div>
               </div>
               
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
                 {library.length === 0 ? (
-                  <div className="text-center text-slate-400 mt-10 text-sm">
-                    <Library size={48} className="mx-auto mb-4 opacity-20" />
-                    <p>No characters saved yet.</p>
+                  <div className="h-full flex flex-col items-center justify-center text-center px-4">
+                    <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4 border border-slate-200 border-dashed">
+                      <Library size={32} className="text-slate-300" />
+                    </div>
+                    <h3 className="text-slate-700 font-semibold mb-1">No characters yet</h3>
+                    <p className="text-sm text-slate-500 max-w-[200px]">Save your first character to start building your library.</p>
                   </div>
                 ) : (
-                  library.map(char => (
-                    <div 
-                      key={char.id} 
-                      onClick={() => loadCharacter(char)}
-                      className={`group flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer bg-white ${seed === char.seed ? 'border-indigo-600 shadow-sm ring-1 ring-indigo-600/20' : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'}`}
-                    >
+                  <div className="grid grid-cols-2 gap-4">
+                    {library.filter(c => c.name.toLowerCase().includes(librarySearch.toLowerCase())).map(char => (
                       <div 
-                        className="w-12 h-12 bg-slate-50 rounded-full overflow-hidden flex-shrink-0 border border-slate-100"
-                        dangerouslySetInnerHTML={{ __html: createAvatar(avataaars, getPayloadFromOptions(char.options, char.seed, char.gender || 'any')).toString() }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-sm truncate text-slate-800">{char.name}</h3>
-                        <p className="text-xs text-slate-500 font-mono mt-0.5">{char.gender || 'any'}</p>
-                      </div>
-                      <button 
-                        onClick={(e) => deleteCharacter(e, char.id)}
-                        className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        key={char.id} 
+                        className={`group relative flex flex-col items-center p-4 rounded-2xl border transition-all duration-300 bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 ${seed === char.seed ? 'border-indigo-500 shadow-md ring-2 ring-indigo-500/20' : 'border-slate-200/60 hover:border-indigo-300'}`}
                       >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  ))
+                        <div 
+                          className="w-20 h-20 bg-slate-50/50 rounded-full mb-3 flex items-center justify-center border border-slate-100 shadow-inner group-hover:scale-105 transition-transform"
+                          dangerouslySetInnerHTML={{ __html: createAvatar(avataaars, getPayloadFromOptions(char.options, char.seed, char.gender || 'any')).toString() }}
+                        />
+                        <div className="w-full text-center">
+                          <h3 className="font-bold text-sm truncate text-slate-800" title={char.name}>{char.name}</h3>
+                          <p className="text-[11px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">{char.gender || 'any'}</p>
+                        </div>
+                        
+                        {/* Hover Actions Overlay */}
+                        <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-2xl flex items-center justify-center gap-2">
+                           <button 
+                             onClick={() => loadCharacter(char)}
+                             className="p-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg transition-transform hover:scale-110"
+                             title="Load Character"
+                           >
+                             <Upload size={16} />
+                           </button>
+                           <button 
+                             onClick={(e) => deleteCharacter(e, char.id)}
+                             className="p-2.5 bg-white text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl shadow-lg border border-red-100 transition-transform hover:scale-110"
+                             title="Delete Character"
+                           >
+                             <Trash2 size={16} />
+                           </button>
+                        </div>
+                      </div>
+                    ))}
+                    {library.filter(c => c.name.toLowerCase().includes(librarySearch.toLowerCase())).length === 0 && (
+                      <div className="col-span-2 text-center text-sm text-slate-500 py-10">
+                        No characters found matching "{librarySearch}"
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 
               {/* Batch Export Button */}
               {library.length > 0 && (
-                <div className="p-4 border-t border-slate-200 bg-slate-50">
+                <div className="p-6 border-t border-slate-200/60 bg-white/50 backdrop-blur-md">
                   <button 
                     onClick={handleExportZip}
                     disabled={isExporting}
-                    className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors ${isExporting ? 'bg-indigo-300 text-white cursor-wait' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md'}`}
+                    className={`w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold transition-all shadow-lg ${isExporting ? 'bg-indigo-300 text-white cursor-wait' : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white hover:shadow-indigo-500/25'}`}
                   >
                     <FolderArchive size={20} />
                     {isExporting ? 'Exporting...' : 'Export All (.zip)'}
@@ -666,6 +719,11 @@ function App() {
         onClose={() => setIsSpriteToolOpen(false)} 
         library={library} 
         getPayloadFromOptions={getPayloadFromOptions} 
+      />
+
+      <AboutModal 
+        isOpen={isAboutOpen}
+        onClose={() => setIsAboutOpen(false)}
       />
     </div>
   );
