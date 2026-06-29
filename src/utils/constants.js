@@ -42,3 +42,33 @@ export const TABS = [
   { id: 'mouth', label: 'Mouth', options: SCHEMA.mouth, colorKeys: [] },
   { id: 'accessories', label: 'Accessories', options: ['none', ...SCHEMA.accessories], colorKeys: ['accessoriesColor'] }
 ];
+export const PROPERTY_DICTIONARY = {
+  top: { label: 'Hair / Hat', icon: 'Scissors' },
+  accessories: { label: 'Accessories', icon: 'Glasses' },
+  facialHair: { label: 'Facial Hair', icon: 'User' },
+  clothing: { label: 'Clothing', icon: 'Shirt' },
+  clothingGraphic: { label: 'Graphic', icon: 'Image' },
+  eyes: { label: 'Eyes', icon: 'Eye' },
+  mouth: { label: 'Mouth', icon: 'Smile' },
+  eyebrows: { label: 'Eyebrows', icon: 'Activity' },
+  skinColor: { label: 'Skin Color', icon: 'Palette' },
+  clothesColor: { label: 'Clothes Color', icon: 'Droplet' },
+  hairColor: { label: 'Hair Color', icon: 'Palette' },
+  facialHairColor: { label: 'Facial Hair Color', icon: 'Palette' },
+  baseColor: { label: 'Base Color', icon: 'Palette' },
+  ears: { label: 'Ears', icon: 'Headphones' },
+  earrings: { label: 'Earrings', icon: 'Sparkles' },
+  earringColor: { label: 'Earring Color', icon: 'Palette' },
+  eyesColor: { label: 'Eyes Color', icon: 'Palette' },
+  eyeShadowColor: { label: 'Eye Shadow', icon: 'Palette' },
+  eyebrowsColor: { label: 'Eyebrows Color', icon: 'Palette' },
+  shirt: { label: 'Shirt', icon: 'Shirt' },
+  shirtColor: { label: 'Shirt Color', icon: 'Droplet' },
+  nose: { label: 'Nose', icon: 'Circle' },
+  hair: { label: 'Hair', icon: 'Scissors' },
+  mouthColor: { label: 'Mouth Color', icon: 'Palette' },
+  glasses: { label: 'Glasses', icon: 'Glasses' },
+  glassesColor: { label: 'Glasses Color', icon: 'Palette' },
+  features: { label: 'Features', icon: 'Star' },
+  default: { label: 'Property', icon: 'Settings' }
+};
