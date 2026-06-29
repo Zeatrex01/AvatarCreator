@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
 import { avataaars } from '@dicebear/collection';
-import { Download, Dices, Image as ImageIcon, Save, Trash2, Library, UserCircle, X, Check, User, Users, FolderArchive, Smile, Frown, Angry, AlertCircle } from 'lucide-react';
+import { Download, Dices, Image as ImageIcon, Save, Trash2, Library, UserCircle, X, Check, User, Users, FolderArchive, Smile, Frown, Angry, AlertCircle, Grid } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import SpriteToolModal from './components/SpriteToolModal';
 
 const SCHEMA = {
   top: ["hat", "hijab", "turban", "winterHat1", "winterHat02", "winterHat03", "winterHat04", "bob", "bun", "curly", "curvy", "dreads", "frida", "fro", "froBand", "longButNotTooLong", "miaWallace", "shavedSides", "straight02", "straight01", "straightAndStrand", "dreads01", "dreads02", "frizzle", "shaggy", "shaggyMullet", "shortCurly", "shortFlat", "shortRound", "shortWaved", "sides", "theCaesar", "theCaesarAndSidePart", "bigHair"],
@@ -59,6 +60,8 @@ function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('top');
   const [isExporting, setIsExporting] = useState(false);
+  const [exportResolution, setExportResolution] = useState(512);
+  const [isSpriteToolOpen, setIsSpriteToolOpen] = useState(false);
   
   const [options, setOptions] = useState({
     style: ['circle'],
@@ -334,21 +337,20 @@ function App() {
   const handleExportZip = async () => {
     if (library.length === 0) return;
     setIsExporting(true);
+    const zip = new JSZip();
+
     try {
-      const zip = new JSZip();
-      
-      for (let i = 0; i < library.length; i++) {
-        const char = library[i];
+      for (const char of library) {
         const payload = getPayloadFromOptions(char.options, char.seed, char.gender || 'any');
-        payload.size = 512;
-        const charSvg = createAvatar(avataaars, payload).toString();
-        const blob = await svgToPngBlob(charSvg);
+        payload.size = exportResolution;
+        const avatar = createAvatar(avataaars, payload);
+        const svgString = avatar.toString();
+        const blob = await svgToPngBlob(svgString, exportResolution);
         
-        // Sanitize filename
-        const safeName = char.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        zip.file(`${safeName}_${i}.png`, blob);
+        const fileName = char.name.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'avatar';
+        zip.file(`${fileName}_${char.id}.png`, blob);
       }
-      
+
       const zipContent = await zip.generateAsync({ type: 'blob' });
       saveAs(zipContent, 'avatars_export.zip');
     } catch (e) {
@@ -389,13 +391,22 @@ function App() {
           </div>
           <h1 className="text-lg font-bold text-slate-800">Avatar Playground</h1>
         </div>
-        <button 
-          onClick={() => setIsLibraryOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors"
-        >
-          <Library size={18} />
-          <span className="hidden sm:inline">My Library</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsSpriteToolOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg font-medium transition-colors"
+          >
+            <Grid size={18} />
+            <span className="hidden sm:inline">Sprite Tool</span>
+          </button>
+          <button 
+            onClick={() => setIsLibraryOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors"
+          >
+            <Library size={18} />
+            <span className="hidden sm:inline">My Library</span>
+          </button>
+        </div>
       </nav>
 
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
@@ -649,6 +660,13 @@ function App() {
           </div>
         )}
       </main>
+
+      <SpriteToolModal 
+        isOpen={isSpriteToolOpen} 
+        onClose={() => setIsSpriteToolOpen(false)} 
+        library={library} 
+        getPayloadFromOptions={getPayloadFromOptions} 
+      />
     </div>
   );
 }
