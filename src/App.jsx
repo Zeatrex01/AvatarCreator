@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
 import { avataaars } from '@dicebear/collection';
-import { Download, Dices, Image as ImageIcon, Save, Trash2, Library, UserCircle, X, Check, User, Users, FolderArchive, Smile, Frown, Angry, AlertCircle, Grid, Search, Upload, Info } from 'lucide-react';
+import { Download, Dices, Image as ImageIcon, Save, Trash2, Library, UserCircle, X, Check, User, Users, FolderArchive, Smile, Frown, Angry, Zap, AlertCircle, Grid, Search, Upload, Info } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import SpriteToolModal from './components/SpriteToolModal';
@@ -78,69 +78,7 @@ function App() {
   useEffect(() => {
     const saved = localStorage.getItem('avatar_library');
     let parsed = saved && saved !== "[]" ? JSON.parse(saved) : [];
-    
-    const defaultChars = [
-      {
-        id: "1", name: "Burak Aydin (Satis)", seed: "burak", gender: "male",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["shortWaved"], hairColor: ["2c1b18"], skinColor: ["edb98a"], facialHair: ["beardLight"], facialHairColor: ["2c1b18"], eyes: ["default"], eyebrows: ["defaultNatural"], mouth: ["smile"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "2", name: "Cansu Demir (IK)", seed: "cansu", gender: "female",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["straight02"], hairColor: ["724133"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["default"], eyebrows: ["flatNatural"], mouth: ["serious"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "3", name: "Emre Koc (Direktor)", seed: "emre", gender: "male",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["sides"], hairColor: ["e8e1e1"], skinColor: ["d08b5b"], facialHair: ["beardLight"], facialHairColor: ["e8e1e1"], eyes: ["squint"], eyebrows: ["sadConcernedNatural"], mouth: ["grimace"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "4", name: "Fatih Dogan (Pazarlama)", seed: "fatih", gender: "male",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["shortWaved"], hairColor: ["2c1b18"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["default"], eyebrows: ["raisedExcitedNatural"], mouth: ["smile"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "5", name: "Gul Arslan (Muhasebe)", seed: "gul", gender: "female",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["bun"], hairColor: ["4a312c"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["surprised"], eyebrows: ["defaultNatural"], mouth: ["default"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "6", name: "Mehmet Kaya (Proje Yon.)", seed: "mehmet", gender: "male",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["theCaesarAndSidePart"], hairColor: ["2c1b18"], skinColor: ["edb98a"], facialHair: ["none"], eyes: ["squint"], eyebrows: ["angryNatural"], mouth: ["serious"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "7", name: "Osman Yildiz (Isci)", seed: "osman", gender: "male",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["frizzle"], hairColor: ["2c1b18"], skinColor: ["ae5d29"], facialHair: ["moustacheMagnum"], facialHairColor: ["4a312c"], eyes: ["cry"], eyebrows: ["sadConcernedNatural"], mouth: ["grimace"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "8", name: "Pinar Cetin (Operasyon)", seed: "pinar", gender: "female",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["bun"], hairColor: ["2c1b18"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["squint"], eyebrows: ["angryNatural"], mouth: ["serious"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "9", name: "Serdar Polat (Yazilim)", seed: "serdar", gender: "male",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["shaggy"], hairColor: ["4a312c"], skinColor: ["ffdbb4"], facialHair: ["beardLight"], facialHairColor: ["4a312c"], eyes: ["default"], eyebrows: ["raisedExcitedNatural"], mouth: ["concerned"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "10", name: "Serkan Yilmaz (Pazarlama)", seed: "serkan", gender: "male",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["shortCurly"], hairColor: ["2c1b18"], skinColor: ["edb98a"], facialHair: ["none"], eyes: ["happy"], eyebrows: ["defaultNatural"], mouth: ["smile"], backgroundColor: ["transparent"] }
-      },
-      {
-        id: "11", name: "Zeynep Celik (Muhasebe)", seed: "zeynep", gender: "female",
-        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["longButNotTooLong"], hairColor: ["4a312c"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["cry"], eyebrows: ["sadConcernedNatural"], mouth: ["default"], backgroundColor: ["transparent"] }
-      }
-    ];
-
-    let changed = false;
-    const newLibrary = [...parsed];
-    defaultChars.forEach(defChar => {
-      if (!parsed.find(p => p.id === defChar.id)) {
-        newLibrary.push(defChar);
-        changed = true;
-      }
-    });
-
-    if (changed || parsed.length === 0) {
-      setLibrary(newLibrary);
-      localStorage.setItem('avatar_library', JSON.stringify(newLibrary));
-    } else {
-      setLibrary(parsed);
-    }
+    setLibrary(parsed);
   }, []);
 
   const saveLibrary = (newLibrary) => {
@@ -212,7 +150,7 @@ function App() {
     if (activeCharacterId) {
       const existingChar = library.find(c => c.id === activeCharacterId);
       if (existingChar) {
-        if (window.confirm(`Var olan "${name}" karakterinin üzerine kaydetmek istiyor musunuz?\nİptal derseniz yeni bir kopya oluşturulur.`)) {
+        if (window.confirm(`Do you want to overwrite the existing character "${name}"?\nIf you cancel, a new copy will be created.`)) {
           const updatedLibrary = library.map(c => {
             if (c.id === activeCharacterId) {
               return { ...c, name, seed, gender: genderFilter, options: { ...options } };
@@ -250,7 +188,7 @@ function App() {
   const deleteCharacter = (e, id) => {
     e.stopPropagation();
     const charToDelete = library.find(c => c.id === id);
-    if (window.confirm(`"${charToDelete?.name || 'Bu karakter'}" adlı karakteri silmek istediğinize emin misiniz?`)) {
+    if (window.confirm(`Are you sure you want to delete "${charToDelete?.name || 'this character'}"?`)) {
       const updatedLibrary = library.filter(c => c.id !== id);
       saveLibrary(updatedLibrary);
       if (activeCharacterId === id) {
@@ -465,7 +403,7 @@ function App() {
                 <Angry size={18} />
               </button>
               <button onClick={() => setEmotion('surprised')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-orange-500 transition-colors" title="Surprised">
-                <AlertCircle size={18} />
+                <Zap size={18} />
               </button>
             </div>
 

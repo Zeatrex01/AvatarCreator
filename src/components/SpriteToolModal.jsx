@@ -230,38 +230,38 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
                 onClick={() => setActiveTab('library')}
                 className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === 'library' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
               >
-                Kütüphane
+                Library
               </button>
               <button
                 onClick={() => setActiveTab('custom')}
                 className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === 'custom' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
               >
-                Özel Görsel
+                Custom Image
               </button>
             </div>
 
             <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-              <h3 className="text-sm font-bold text-indigo-900 mb-2">Ayarlar</h3>
+              <h3 className="text-sm font-bold text-indigo-900 mb-2">Settings</h3>
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm text-indigo-700 font-medium">Sütun Sayısı (Columns)</label>
+                  <label className="text-sm text-indigo-700 font-medium">Columns</label>
                   <select 
                     value={columns} 
                     onChange={e => setColumns(Number(e.target.value))}
                     className="p-2 rounded-lg border-indigo-200 focus:ring-indigo-500 outline-none w-full"
                   >
-                    <option value={0}>Tek Satır (Yatay Strip)</option>
-                    <option value={1}>1 (Dikey)</option>
-                    <option value={2}>2 Sütun</option>
-                    <option value={3}>3 Sütun</option>
-                    <option value={4}>4 Sütun</option>
-                    <option value={5}>5 Sütun</option>
+                    <option value={0}>Single Row (Strip)</option>
+                    <option value={1}>1 (Vertical)</option>
+                    <option value={2}>2 Columns</option>
+                    <option value={3}>3 Columns</option>
+                    <option value={4}>4 Columns</option>
+                    <option value={5}>5 Columns</option>
                   </select>
                 </div>
                 
                 <div className="flex gap-2">
                   <div className="flex flex-col gap-1 flex-1">
-                    <label className="text-sm text-indigo-700 font-medium">Hücre Genişliği</label>
+                    <label className="text-sm text-indigo-700 font-medium">Cell Width</label>
                     <input 
                       type="number" 
                       min="16" 
@@ -272,7 +272,7 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
                     />
                   </div>
                   <div className="flex flex-col gap-1 flex-1">
-                    <label className="text-sm text-indigo-700 font-medium">Hücre Yüksekliği</label>
+                    <label className="text-sm text-indigo-700 font-medium">Cell Height</label>
                     <input 
                       type="number" 
                       min="16" 
@@ -286,15 +286,15 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
 
                 {activeTab === 'custom' && (
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm text-indigo-700 font-medium">Hizalama (Farklı Boyutlar)</label>
+                    <label className="text-sm text-indigo-700 font-medium">Object Fit</label>
                     <select 
                       value={objectFit} 
                       onChange={e => setObjectFit(e.target.value)}
                       className="p-2 rounded-lg border-indigo-200 focus:ring-indigo-500 outline-none w-full"
                     >
-                      <option value="contain">Sığdır (Ortala ve Küçült)</option>
-                      <option value="cover">Kırp (Boşluk Bırakma)</option>
-                      <option value="stretch">Esnerek Doldur (Uzama)</option>
+                      <option value="contain">Contain (Center and scale)</option>
+                      <option value="cover">Cover (Crop to fill)</option>
+                      <option value="stretch">Stretch (Fill exact dimensions)</option>
                     </select>
                   </div>
                 )}
@@ -335,8 +335,8 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
                       <Upload size={24} strokeWidth={2.5} />
                     </div>
                     <div>
-                      <p className="text-base font-bold text-slate-700">Yeni Görsel Ekle</p>
-                      <p className="text-sm text-slate-500 mt-1 font-medium">Sürükle veya tıkla</p>
+                      <p className="text-base font-bold text-slate-700">Add New Image</p>
+                      <p className="text-sm text-slate-500 mt-1 font-medium">Drag or click here</p>
                     </div>
                   </label>
                 </div>
@@ -352,14 +352,14 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
                             <button 
                               onClick={() => setEditingIndex(i)} 
                               className="p-3 bg-white text-indigo-600 rounded-full hover:bg-indigo-50 hover:scale-110 transition-all shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-                              title="Kırp/Düzenle"
+                              title="Crop/Edit"
                             >
                               <Crop size={18} strokeWidth={2.5} />
                             </button>
                             <button 
                               onClick={() => setCustomFiles(customFiles.filter((_, idx) => idx !== i))} 
                               className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 hover:scale-110 transition-all shadow-[0_0_15px_rgba(239,68,68,0.4)]"
-                              title="Sil"
+                              title="Delete"
                             >
                               <X size={18} strokeWidth={2.5} />
                             </button>
@@ -373,7 +373,7 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
             )}
             {activeTab === 'library' && (
               <div className="text-center p-6 bg-slate-50 rounded-xl border border-slate-200 text-sm text-slate-600">
-                Kütüphanenizdeki <strong>{library.length}</strong> karakter kullanılıyor.
+                You are using <strong>{library.length}</strong> characters from your library.
               </div>
             )}
           </div>
@@ -382,7 +382,7 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
             {isGenerating && (
               <div className="absolute inset-0 bg-slate-50/80 backdrop-blur-sm flex items-center justify-center z-10">
                 <div className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium shadow-lg animate-pulse">
-                  Önizleme Yükleniyor...
+                  Loading Preview...
                 </div>
               </div>
             )}
@@ -392,7 +392,7 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
             ) : (
               <div className="flex flex-col items-center text-slate-400">
                 <Grid size={48} className="opacity-20 mb-3" />
-                <p className="font-medium">Önizleme Yok</p>
+                <p className="font-medium">No Preview</p>
               </div>
             )}
           </div>
@@ -411,7 +411,7 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
             }`}
           >
             <Download size={20} />
-            Spritesheet İndir
+            Download Spritesheet
           </button>
         </div>
 
@@ -423,20 +423,20 @@ export default function SpriteToolModal({ isOpen, onClose, library, getPayloadFr
                 <div className="p-2 bg-indigo-100 rounded-lg shadow-inner">
                   <Crop size={20} className="text-indigo-600" /> 
                 </div>
-                Görseli Hassas Kırp
+                Crop Image
               </h3>
               <div className="flex gap-3">
                 <button 
                   onClick={() => { setEditingIndex(null); setCrop(undefined); setCompletedCrop(null); }}
                   className="px-5 py-2.5 text-sm font-semibold bg-white/80 text-slate-700 rounded-xl hover:bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 active:scale-95 border border-slate-200/50"
                 >
-                  İptal Et
+                  Cancel
                 </button>
                 <button 
                   onClick={applyCrop}
                   className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 flex items-center gap-2"
                 >
-                  <Check size={18} strokeWidth={2.5} /> Onayla ve Kes
+                  <Check size={18} strokeWidth={2.5} /> Confirm & Crop
                 </button>
               </div>
             </div>
