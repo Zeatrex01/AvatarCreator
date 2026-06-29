@@ -71,6 +71,19 @@ export default function PreviewPane({
           <button onClick={() => setEmotion('surprised')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-orange-500 transition-colors" title="Surprised"><Zap size={18} /></button>
         </div>
 
+        {/* Collection/Style Toggle */}
+        <div className="flex bg-slate-100 p-1 rounded-xl shadow-inner border border-slate-200 mb-2">
+          {['avataaars', 'adventurer', 'micah'].map(col => (
+            <button
+              key={col}
+              onClick={() => setActiveCollectionName(col)}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all ${activeCollectionName === col ? 'bg-white shadow text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              {col}
+            </button>
+          ))}
+        </div>
+
         {/* Name Input & Save (Both Mobile and Desktop) */}
         <div className="flex gap-2">
           <input 
