@@ -15,7 +15,7 @@ export default function OptionsGrid({
   getPayloadFromOptions
 }) {
   return (
-    <div className="flex-1 bg-slate-50 flex flex-col overflow-hidden relative">
+    <div className="flex-1 bg-slate-50 flex flex-col overflow-visible lg:overflow-hidden relative">
       <div className="px-6 pt-6 pb-0 bg-white border-b border-slate-200 shrink-0">
         <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4">
           {visibleTabs.map(tab => (
@@ -33,7 +33,7 @@ export default function OptionsGrid({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-visible lg:overflow-y-auto p-6">
         <div className="max-w-5xl mx-auto space-y-8">
           
           {activeTabData.colorKeys.length > 0 && (

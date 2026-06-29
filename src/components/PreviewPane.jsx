@@ -14,7 +14,7 @@ export default function PreviewPane({
   handleDownloadPNG
 }) {
   return (
-    <div className="w-full lg:w-[400px] shrink-0 border-r border-slate-200 bg-white p-6 flex flex-col items-center justify-start overflow-y-auto">
+    <div className="w-full lg:w-[400px] shrink-0 border-r border-slate-200 bg-white p-6 flex flex-col items-center justify-start overflow-visible lg:overflow-y-auto">
       
       <div className="w-full max-w-[280px] bg-slate-100 p-1 rounded-xl flex shadow-inner mb-6">
         <button 

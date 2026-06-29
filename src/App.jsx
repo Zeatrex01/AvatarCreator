@@ -189,7 +189,7 @@ function App() {
         onOpenAbout={() => setIsAboutOpen(true)}
       />
 
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+      <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden relative">
         
         <PreviewPane
           genderFilter={genderFilter}
