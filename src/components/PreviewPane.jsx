@@ -14,11 +14,11 @@ export default function PreviewPane({
   handleDownloadPNG
 }) {
   return (
-    <div className="w-full lg:w-[400px] shrink-0 border-b lg:border-b-0 lg:border-r border-slate-200 bg-white p-4 lg:p-6 flex flex-col items-center justify-start z-10 shadow-sm lg:shadow-none">
+    <div className="w-full lg:w-[400px] shrink-0 border-b-0 lg:border-r border-slate-200 bg-transparent lg:bg-white p-4 lg:p-6 flex flex-col items-center justify-start z-10 shadow-none lg:shadow-none">
       
       {/* Mobile RPG Avatar / Desktop Avatar */}
-      <div className="relative w-[220px] lg:w-full lg:max-w-[280px] aspect-square rounded-[2rem] bg-slate-50 border border-slate-200 shadow-sm mb-4 lg:mb-4 overflow-hidden flex items-center justify-center p-2">
-        <div className="w-full h-full flex items-center justify-center" dangerouslySetInnerHTML={{ __html: svgContent }} />
+      <div className="relative w-[240px] lg:w-full lg:max-w-[280px] aspect-square rounded-[2rem] bg-transparent lg:bg-slate-50 border-0 lg:border lg:border-slate-200 shadow-none lg:shadow-sm mb-4 lg:mb-4 overflow-hidden flex items-center justify-center p-0 lg:p-2">
+        <div className="w-full h-full flex items-center justify-center scale-110 lg:scale-100" dangerouslySetInnerHTML={{ __html: svgContent }} />
         
         {/* Floating Mobile Dice Button */}
         <button 

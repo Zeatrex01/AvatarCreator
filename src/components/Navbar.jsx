@@ -3,7 +3,7 @@ import { UserCircle, Grid, Library, Info } from 'lucide-react';
 
 export default function Navbar({ onOpenSpriteTool, onToggleLibrary, onOpenAbout }) {
   return (
-    <nav className="h-16 border-b border-slate-200 bg-white flex items-center px-6 justify-between shrink-0">
+    <nav className="hidden lg:flex h-16 border-b border-slate-200 bg-white items-center px-6 justify-between shrink-0">
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-md">
           <UserCircle size={20} className="text-white" />

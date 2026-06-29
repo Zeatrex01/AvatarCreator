@@ -15,8 +15,12 @@ export default function OptionsGrid({
   getPayloadFromOptions
 }) {
   return (
-    <div className="flex-1 bg-slate-50 flex flex-col overflow-hidden relative min-h-0">
-      <div className="px-4 lg:px-6 pt-4 lg:pt-6 pb-0 bg-white border-b border-slate-200 shrink-0">
+    <div className="flex-1 bg-slate-50 flex flex-col overflow-hidden relative min-h-0 rounded-t-[2rem] lg:rounded-none shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.15)] lg:shadow-none z-20 mt-2 lg:mt-0">
+      {/* Mobile Drag Handle Indicator */}
+      <div className="lg:hidden absolute top-0 left-0 right-0 h-4 flex items-center justify-center bg-white rounded-t-[2rem]">
+         <div className="w-12 h-1.5 bg-slate-200 rounded-full"></div>
+      </div>
+      <div className="px-4 lg:px-6 pt-6 pb-0 bg-white border-b border-slate-200 shrink-0">
         <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4">
           {visibleTabs.map(tab => (
             <button

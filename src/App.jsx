@@ -182,7 +182,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans pb-16 lg:pb-0">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-slate-100 lg:bg-none lg:bg-slate-50 text-slate-900 flex flex-col font-sans pb-16 lg:pb-0">
       
       <Navbar 
         onOpenSpriteTool={() => setIsSpriteToolOpen(true)}
