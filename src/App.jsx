@@ -14,7 +14,7 @@ import AboutModal from './components/AboutModal';
 
 import { useAvatar } from './hooks/useAvatar';
 import { useLibrary } from './hooks/useLibrary';
-import { PROPERTY_DICTIONARY, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR } from './utils/constants';
+import { PROPERTY_DICTIONARY, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR, ADVENTURER_MALE_HAIR, ADVENTURER_FEMALE_HAIR, MICAH_MALE_HAIR, MICAH_FEMALE_HAIR, MICAH_UNISEX_HAIR, PIXELART_MALE_HAIR, PIXELART_FEMALE_HAIR } from './utils/constants';
 
 function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -31,6 +31,7 @@ function App() {
     genderFilter,
     characterName, setCharacterName,
     activeCharacterId, setActiveCharacterId,
+    activeCollectionName, setActiveCollectionName,
     options,
     handleOptionChange,
     applyGenderToRandomization,
@@ -72,7 +73,9 @@ function App() {
   };
 
   const getPayloadFromOptions = (optsObj, customSeed = seed, customGender = genderFilter) => {
-    const payload = { seed: customSeed, size: 256, style: optsObj.style };
+    const payload = { seed: customSeed, size: 256 };
+    if (optsObj.style) payload.style = optsObj.style;
+    
     Object.keys(optsObj).forEach(key => {
       if (Array.isArray(optsObj[key]) && optsObj[key].length > 0) {
         if (optsObj[key][0] === "none") {
@@ -96,8 +99,7 @@ function App() {
   };
 
   const collections = { avataaars, adventurer, micah, pixelArt };
-  const [activeCollectionName, setActiveCollectionName] = useState('avataaars');
-  const activeCollection = collections[activeCollectionName];
+  const activeCollection = collections[activeCollectionName] || avataaars;
 
   const dicebearOptions = useMemo(() => getPayloadFromOptions(options), [seed, options, genderFilter]);
   const avatarSvg = useMemo(() => createAvatar(activeCollection, dicebearOptions).toString(), [dicebearOptions, activeCollection]);
@@ -267,6 +269,22 @@ function App() {
       displayedOptions = ['none', ...MALE_HAIR, ...UNISEX_HAIR];
     } else if (genderFilter === 'female') {
       displayedOptions = ['none', ...FEMALE_HAIR, ...UNISEX_HAIR];
+    }
+  } else if (activeCollectionName === 'adventurer' && activeTabData.id === 'hair') {
+    if (genderFilter === 'male') {
+      displayedOptions = ADVENTURER_MALE_HAIR;
+    } else if (genderFilter === 'female') {
+      displayedOptions = ADVENTURER_FEMALE_HAIR;
+    }
+  } else if (activeCollectionName === 'micah') {
+    if (activeTabData.id === 'hair') {
+      if (genderFilter === 'male') {
+        displayedOptions = [...MICAH_MALE_HAIR, ...MICAH_UNISEX_HAIR];
+      } else if (genderFilter === 'female') {
+        displayedOptions = [...MICAH_FEMALE_HAIR, ...MICAH_UNISEX_HAIR];
+      }
+    } else if (activeTabData.id === 'facialHair' && genderFilter === 'female') {
+      displayedOptions = [];
     }
   }
 

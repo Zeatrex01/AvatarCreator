@@ -31,6 +31,16 @@ export const MALE_HAIR = ["dreads01", "dreads02", "frizzle", "shaggy", "shaggyMu
 export const FEMALE_HAIR = ["bob", "bun", "curly", "curvy", "dreads", "frida", "fro", "froBand", "longButNotTooLong", "miaWallace", "shavedSides", "straight02", "straight01", "straightAndStrand", "bigHair", "hijab"];
 export const UNISEX_HAIR = ["hat", "turban", "winterHat1", "winterHat02", "winterHat03", "winterHat04"];
 
+export const ADVENTURER_MALE_HAIR = ["short16","short15","short14","short13","short12","short11","short10","short09","short08","short07","short06","short05","short04","short03","short02","short01","short19","short18","short17"];
+export const ADVENTURER_FEMALE_HAIR = ["long20","long19","long18","long17","long16","long15","long14","long13","long12","long11","long10","long09","long08","long07","long06","long05","long04","long03","long02","long01","long26","long25","long24","long23","long22","long21"];
+
+export const MICAH_MALE_HAIR = ["mrT", "fonze", "mrClean", "dannyPhantom"];
+export const MICAH_FEMALE_HAIR = ["pixie", "full"];
+export const MICAH_UNISEX_HAIR = ["turban", "dougFunny"];
+
+export const PIXELART_MALE_HAIR = ["short24","short23","short22","short21","short20","short19","short18","short17","short16","short15","short14","short13","short12","short11","short10","short09","short08","short07","short06","short05","short04","short03","short02","short01"];
+export const PIXELART_FEMALE_HAIR = ["long21","long20","long19","long18","long17","long16","long15","long14","long13","long12","long11","long10","long09","long08","long07","long06","long05","long04","long03","long02","long01"];
+
 export const TABS = [
   { id: 'style', label: 'Style', options: ['circle', 'default'], colorKeys: ['backgroundColor', 'skinColor'] },
   { id: 'top', label: 'Hair / Head', options: ['none', ...SCHEMA.top], colorKeys: ['hairColor'] },

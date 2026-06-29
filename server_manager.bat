@@ -5,18 +5,18 @@ color 0B
 :menu
 cls
 echo ===================================================
-echo   🚀 Avatar Creator - Gelismis Sunucu Yoneticisi
+echo     AVATAR CREATOR - ADVANCED SERVER MANAGER
 echo ===================================================
 echo.
-echo   [1] 🟢 Sunucuyu Baslat (Dev Server)
-echo   [2] 🧹 Onbellegi Temizle (Vite Cache ^& Dist)
-echo   [3] 🔍 Kodlari Kontrol Et (Lint)
-echo   [4] 📦 Uretime Hazirla (Build)
-echo   [5] 🔄 Bagimliliklari Guncelle (npm install)
-echo   [6] ❌ Cikis
+echo   [1] Start Server (Dev Server)
+echo   [2] Clear Cache (Vite Cache ^& Dist)
+echo   [3] Check Code (Lint)
+echo   [4] Prepare for Production (Build)
+echo   [5] Update Dependencies (npm install)
+echo   [6] Exit
 echo.
 echo ===================================================
-set /p choice="Lutfen bir islem secin (1-6): "
+set /p choice="Select an operation [1-6]: "
 
 if "%choice%"=="1" goto start
 if "%choice%"=="2" goto cache
@@ -27,52 +27,52 @@ if "%choice%"=="6" exit
 
 :start
 cls
-echo 🟢 Gelistirme sunucusu baslatiliyor... (Cikmak icin CTRL+C)
+echo Starting development server... (Press CTRL+C to exit)
 call npm run dev
 pause
 goto menu
 
 :cache
 cls
-echo 🧹 Onbellek temizleniyor...
+echo Clearing cache...
 if exist "node_modules\.vite" (
     rmdir /s /q "node_modules\.vite"
-    echo - Vite onbellegi silindi.
+    echo [INFO] Vite cache deleted.
 )
 if exist "dist" (
     rmdir /s /q "dist"
-    echo - Build (dist) klasoru silindi.
+    echo [INFO] Build (dist) folder deleted.
 )
-echo - NPM onbellegi temizleniyor...
+echo [INFO] NPM cache is being cleared...
 call npm cache clean --force
 echo.
-echo ✅ Temizlik tamamlandi!
+echo [SUCCESS] Cleanup completed.
 pause
 goto menu
 
 :lint
 cls
-echo 🔍 ESLint ile kodlar kontrol ediliyor...
+echo Checking code with ESLint...
 call npm run lint
 echo.
-echo ✅ Linting islemi bitti.
+echo [SUCCESS] Linting operation finished.
 pause
 goto menu
 
 :build
 cls
-echo 📦 Uretim ortami icin proje derleniyor...
+echo Compiling project for production...
 call npm run build
 echo.
-echo ✅ Derleme tamamlandi! Ciktilar "dist" klasorunde.
+echo [SUCCESS] Build completed. Outputs are in the "dist" folder.
 pause
 goto menu
 
 :install
 cls
-echo 🔄 Bagimliliklar kontrol ediliyor ve yukleniyor...
+echo Checking and installing dependencies...
 call npm install --legacy-peer-deps
 echo.
-echo ✅ Yukleme tamamlandi!
+echo [SUCCESS] Installation completed.
 pause
 goto menu

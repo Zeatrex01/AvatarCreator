@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { createAvatar } from '@dicebear/core';
 import { avataaars } from '@dicebear/collection';
-import { SCHEMA, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR } from '../utils/constants';
+import { SCHEMA, MALE_HAIR, FEMALE_HAIR, UNISEX_HAIR, ADVENTURER_MALE_HAIR, ADVENTURER_FEMALE_HAIR, MICAH_MALE_HAIR, MICAH_FEMALE_HAIR, MICAH_UNISEX_HAIR, PIXELART_MALE_HAIR, PIXELART_FEMALE_HAIR } from '../utils/constants';
 
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -35,6 +35,25 @@ export function useAvatar() {
         newOptions.facialHair = ["none"];
       } else {
         newOptions.top = [];
+        newOptions.facialHair = [];
+      }
+    } else if (activeCollectionName === 'adventurer') {
+      if (gender === 'male') {
+        newOptions.hair = [pickRandom(ADVENTURER_MALE_HAIR)];
+      } else if (gender === 'female') {
+        newOptions.hair = [pickRandom(ADVENTURER_FEMALE_HAIR)];
+      } else {
+        newOptions.hair = [];
+      }
+    } else if (activeCollectionName === 'micah') {
+      if (gender === 'male') {
+        newOptions.hair = [pickRandom([...MICAH_MALE_HAIR, ...MICAH_UNISEX_HAIR])];
+        newOptions.facialHair = Math.random() > 0.5 ? ['beard', 'scruff'][Math.floor(Math.random() * 2)] : [];
+      } else if (gender === 'female') {
+        newOptions.hair = [pickRandom([...MICAH_FEMALE_HAIR, ...MICAH_UNISEX_HAIR])];
+        newOptions.facialHair = [];
+      } else {
+        newOptions.hair = [];
         newOptions.facialHair = [];
       }
     }
