@@ -1,12 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
 import { avataaars } from '@dicebear/collection';
-import { Download, Dices, Image as ImageIcon, Save, Trash2, Library, UserCircle, X, Check, User, Users } from 'lucide-react';
+import { Download, Dices, Image as ImageIcon, Save, Trash2, Library, UserCircle, X, Check, User, Users, FolderArchive, Smile, Frown, Angry, AlertCircle } from 'lucide-react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 const SCHEMA = {
   top: ["hat", "hijab", "turban", "winterHat1", "winterHat02", "winterHat03", "winterHat04", "bob", "bun", "curly", "curvy", "dreads", "frida", "fro", "froBand", "longButNotTooLong", "miaWallace", "shavedSides", "straight02", "straight01", "straightAndStrand", "dreads01", "dreads02", "frizzle", "shaggy", "shaggyMullet", "shortCurly", "shortFlat", "shortRound", "shortWaved", "sides", "theCaesar", "theCaesarAndSidePart", "bigHair"],
   accessories: ["kurt", "prescription01", "prescription02", "round", "sunglasses", "wayfarers", "eyepatch"],
   clothing: ["blazerAndShirt", "blazerAndSweater", "collarAndSweater", "graphicShirt", "hoodie", "overall", "shirtCrewNeck", "shirtScoopNeck", "shirtVNeck"],
+  clothingGraphic: ["bat", "bear", "cumbia", "deer", "diamond", "hola", "pizza", "resist", "skull", "skullOutline"],
   eyes: ["closed", "cry", "default", "eyeRoll", "happy", "hearts", "side", "squint", "surprised", "winkWacky", "wink", "xDizzy"],
   eyebrows: ["angryNatural", "defaultNatural", "flatNatural", "frownNatural", "raisedExcitedNatural", "sadConcernedNatural", "unibrowNatural", "upDownNatural", "angry", "default", "raisedExcited", "sadConcerned", "upDown"],
   mouth: ["concerned", "default", "disbelief", "eating", "grimace", "sad", "screamOpen", "serious", "smile", "tongue", "twinkle", "vomit"],
@@ -18,6 +21,7 @@ const COLORS = {
   hairColor: ["a55728", "2c1b18", "b58143", "d6b370", "724133", "4a312c", "f59797", "ecdcbf", "c93305", "e8e1e1"],
   facialHairColor: ["a55728", "2c1b18", "b58143", "d6b370", "724133", "4a312c", "f59797", "ecdcbf", "c93305", "e8e1e1"],
   clothesColor: ["262e33", "65c9ff", "5199e4", "25557c", "e6e6e6", "929598", "3c4f5c", "b1e2ff", "a7ffc4", "ffafb9", "ffffb1", "ff488e", "ff5c5c", "ffffff"],
+  accessoriesColor: ["262e33", "65c9ff", "5199e4", "25557c", "e6e6e6", "929598", "3c4f5c", "b1e2ff", "a7ffc4", "ffafb9", "ffffb1", "ff488e", "ff5c5c", "ffffff"],
   backgroundColor: ["b6e3f4", "c0aede", "d1d4f9", "ffd5dc", "ffdfbf", "65c9ff", "transparent"]
 };
 
@@ -26,6 +30,7 @@ const COLOR_LABELS = {
   hairColor: "Hair Color",
   facialHairColor: "Facial Hair Color",
   clothesColor: "Clothes Color",
+  accessoriesColor: "Accessories Color",
   backgroundColor: "Background"
 };
 
@@ -38,66 +43,97 @@ const TABS = [
   { id: 'top', label: 'Hair / Head', options: ['none', ...SCHEMA.top], colorKeys: ['hairColor'] },
   { id: 'facialHair', label: 'Facial Hair', options: ['none', ...SCHEMA.facialHair], colorKeys: ['facialHairColor'] },
   { id: 'clothing', label: 'Clothing', options: SCHEMA.clothing, colorKeys: ['clothesColor'] },
+  { id: 'clothingGraphic', label: 'T-Shirt Print', options: ['none', ...SCHEMA.clothingGraphic], colorKeys: [] },
   { id: 'eyes', label: 'Eyes', options: SCHEMA.eyes, colorKeys: [] },
   { id: 'eyebrows', label: 'Eyebrows', options: SCHEMA.eyebrows, colorKeys: [] },
   { id: 'mouth', label: 'Mouth', options: SCHEMA.mouth, colorKeys: [] },
-  { id: 'accessories', label: 'Accessories', options: ['none', ...SCHEMA.accessories], colorKeys: [] }
+  { id: 'accessories', label: 'Accessories', options: ['none', ...SCHEMA.accessories], colorKeys: ['accessoriesColor'] }
 ];
 
 function App() {
   const [seed, setSeed] = useState('Hero');
-  const [genderFilter, setGenderFilter] = useState('any'); // 'male', 'female', 'any'
+  const [genderFilter, setGenderFilter] = useState('any');
   const [characterName, setCharacterName] = useState('');
+  const [activeCharacterId, setActiveCharacterId] = useState(null);
   const [library, setLibrary] = useState([]);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('top');
+  const [isExporting, setIsExporting] = useState(false);
   
   const [options, setOptions] = useState({
     style: ['circle'],
-    top: [], accessories: [], clothing: [], eyes: [], eyebrows: [], mouth: [], facialHair: [],
-    skinColor: [], hairColor: [], facialHairColor: [], clothesColor: [], backgroundColor: ['transparent'],
+    top: [], accessories: [], clothing: [], clothingGraphic: [], eyes: [], eyebrows: [], mouth: [], facialHair: [],
+    skinColor: [], hairColor: [], facialHairColor: [], clothesColor: [], accessoriesColor: [], backgroundColor: ['transparent'],
   });
 
   const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-  // Load Library from LocalStorage on mount
+  // Load Library
   useEffect(() => {
     const saved = localStorage.getItem('avatar_library');
-    if (saved && saved !== "[]") {
-      setLibrary(JSON.parse(saved));
+    let parsed = saved && saved !== "[]" ? JSON.parse(saved) : [];
+    
+    const defaultChars = [
+      {
+        id: "1", name: "Burak Aydin (Satis)", seed: "burak", gender: "male",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["shortWaved"], hairColor: ["2c1b18"], skinColor: ["edb98a"], facialHair: ["beardLight"], facialHairColor: ["2c1b18"], eyes: ["default"], eyebrows: ["defaultNatural"], mouth: ["smile"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "2", name: "Cansu Demir (IK)", seed: "cansu", gender: "female",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["straight02"], hairColor: ["724133"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["default"], eyebrows: ["flatNatural"], mouth: ["serious"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "3", name: "Emre Koc (Direktor)", seed: "emre", gender: "male",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["sides"], hairColor: ["e8e1e1"], skinColor: ["d08b5b"], facialHair: ["beardLight"], facialHairColor: ["e8e1e1"], eyes: ["squint"], eyebrows: ["sadConcernedNatural"], mouth: ["grimace"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "4", name: "Fatih Dogan (Pazarlama)", seed: "fatih", gender: "male",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["shortWaved"], hairColor: ["2c1b18"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["default"], eyebrows: ["raisedExcitedNatural"], mouth: ["smile"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "5", name: "Gul Arslan (Muhasebe)", seed: "gul", gender: "female",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["bun"], hairColor: ["4a312c"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["surprised"], eyebrows: ["defaultNatural"], mouth: ["default"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "6", name: "Mehmet Kaya (Proje Yon.)", seed: "mehmet", gender: "male",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["theCaesarAndSidePart"], hairColor: ["2c1b18"], skinColor: ["edb98a"], facialHair: ["none"], eyes: ["squint"], eyebrows: ["angryNatural"], mouth: ["serious"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "7", name: "Osman Yildiz (Isci)", seed: "osman", gender: "male",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["frizzle"], hairColor: ["2c1b18"], skinColor: ["ae5d29"], facialHair: ["moustacheMagnum"], facialHairColor: ["4a312c"], eyes: ["cry"], eyebrows: ["sadConcernedNatural"], mouth: ["grimace"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "8", name: "Pinar Cetin (Operasyon)", seed: "pinar", gender: "female",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["bun"], hairColor: ["2c1b18"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["squint"], eyebrows: ["angryNatural"], mouth: ["serious"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "9", name: "Serdar Polat (Yazilim)", seed: "serdar", gender: "male",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["shaggy"], hairColor: ["4a312c"], skinColor: ["ffdbb4"], facialHair: ["beardLight"], facialHairColor: ["4a312c"], eyes: ["default"], eyebrows: ["raisedExcitedNatural"], mouth: ["concerned"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "10", name: "Serkan Yilmaz (Pazarlama)", seed: "serkan", gender: "male",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["shortCurly"], hairColor: ["2c1b18"], skinColor: ["edb98a"], facialHair: ["none"], eyes: ["happy"], eyebrows: ["defaultNatural"], mouth: ["smile"], backgroundColor: ["transparent"] }
+      },
+      {
+        id: "11", name: "Zeynep Celik (Muhasebe)", seed: "zeynep", gender: "female",
+        options: { style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"], clothingGraphic: [], top: ["longButNotTooLong"], hairColor: ["4a312c"], skinColor: ["ffdbb4"], facialHair: ["none"], eyes: ["cry"], eyebrows: ["sadConcernedNatural"], mouth: ["default"], backgroundColor: ["transparent"] }
+      }
+    ];
+
+    let changed = false;
+    const newLibrary = [...parsed];
+    defaultChars.forEach(defChar => {
+      if (!parsed.find(p => p.id === defChar.id)) {
+        newLibrary.push(defChar);
+        changed = true;
+      }
+    });
+
+    if (changed || parsed.length === 0) {
+      setLibrary(newLibrary);
+      localStorage.setItem('avatar_library', JSON.stringify(newLibrary));
     } else {
-      // Preload 3 Prompt Characters
-      const defaultChars = [
-        {
-          id: "1", name: "Burak Aydin (Satis)", seed: "burak", gender: "male",
-          options: {
-            style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"],
-            top: ["shortWaved"], hairColor: ["2c1b18"], skinColor: ["edb98a"],
-            facialHair: ["beardLight"], facialHairColor: ["2c1b18"],
-            eyes: ["default"], eyebrows: ["defaultNatural"], mouth: ["smile"], backgroundColor: ["transparent"]
-          }
-        },
-        {
-          id: "2", name: "Cansu Demir (IK)", seed: "cansu", gender: "female",
-          options: {
-            style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"],
-            top: ["straight02"], hairColor: ["724133"], skinColor: ["ffdbb4"],
-            facialHair: ["none"], 
-            eyes: ["default"], eyebrows: ["flatNatural"], mouth: ["serious"], backgroundColor: ["transparent"]
-          }
-        },
-        {
-          id: "3", name: "Emre Koc (Direktor)", seed: "emre", gender: "male",
-          options: {
-            style: ["circle"], clothing: ["blazerAndShirt"], clothesColor: ["25557c"],
-            top: ["sides"], hairColor: ["e8e1e1"], skinColor: ["d08b5b"],
-            facialHair: ["beardLight"], facialHairColor: ["e8e1e1"],
-            eyes: ["squint"], eyebrows: ["sadConcernedNatural"], mouth: ["grimace"], backgroundColor: ["transparent"]
-          }
-        }
-      ];
-      setLibrary(defaultChars);
-      localStorage.setItem('avatar_library', JSON.stringify(defaultChars));
+      setLibrary(parsed);
     }
   }, []);
 
@@ -110,12 +146,13 @@ function App() {
     const newSeed = Math.random().toString(36).substring(2, 10);
     setSeed(newSeed);
     setCharacterName('');
+    setActiveCharacterId(null);
     
     let newOptions = {
       style: options.style,
       backgroundColor: options.backgroundColor,
-      accessories: [], clothing: [], eyes: [], eyebrows: [], mouth: [],
-      skinColor: [], hairColor: [], facialHairColor: [], clothesColor: []
+      accessories: [], clothing: [], clothingGraphic: [], eyes: [], eyebrows: [], mouth: [],
+      skinColor: [], hairColor: [], facialHairColor: [], clothesColor: [], accessoriesColor: []
     };
 
     if (gender === 'male') {
@@ -137,8 +174,52 @@ function App() {
     applyGenderToRandomization(gender);
   };
 
+  const setEmotion = (emotion) => {
+    setOptions(prev => {
+      const opts = { ...prev };
+      switch(emotion) {
+        case 'happy':
+          opts.eyes = ['happy']; opts.mouth = ['smile']; opts.eyebrows = ['defaultNatural'];
+          break;
+        case 'angry':
+          opts.eyes = ['squint']; opts.mouth = ['serious']; opts.eyebrows = ['angryNatural'];
+          break;
+        case 'sad':
+          opts.eyes = ['cry']; opts.mouth = ['sad']; opts.eyebrows = ['sadConcernedNatural'];
+          break;
+        case 'surprised':
+          opts.eyes = ['surprised']; opts.mouth = ['disbelief']; opts.eyebrows = ['raisedExcitedNatural'];
+          break;
+        case 'default':
+          opts.eyes = ['default']; opts.mouth = ['default']; opts.eyebrows = ['defaultNatural'];
+          break;
+        default:
+          break;
+      }
+      return opts;
+    });
+  };
+
   const saveCurrentCharacter = () => {
     const name = characterName.trim() || `Character - ${seed.substring(0,4)}`;
+    
+    if (activeCharacterId) {
+      const existingChar = library.find(c => c.id === activeCharacterId);
+      if (existingChar) {
+        if (window.confirm(`Var olan "${name}" karakterinin üzerine kaydetmek istiyor musunuz?\nİptal derseniz yeni bir kopya oluşturulur.`)) {
+          const updatedLibrary = library.map(c => {
+            if (c.id === activeCharacterId) {
+              return { ...c, name, seed, gender: genderFilter, options: { ...options } };
+            }
+            return c;
+          });
+          saveLibrary(updatedLibrary);
+          setIsLibraryOpen(true);
+          return;
+        }
+      }
+    }
+
     const newChar = {
       id: Date.now().toString(),
       name,
@@ -147,7 +228,7 @@ function App() {
       options: { ...options }
     };
     saveLibrary([newChar, ...library]);
-    setCharacterName('');
+    setActiveCharacterId(newChar.id);
     setIsLibraryOpen(true);
   };
 
@@ -156,12 +237,20 @@ function App() {
     setOptions(char.options);
     setCharacterName(char.name);
     setGenderFilter(char.gender || 'any');
+    setActiveCharacterId(char.id);
     setIsLibraryOpen(false);
   };
 
   const deleteCharacter = (e, id) => {
     e.stopPropagation();
-    saveLibrary(library.filter(c => c.id !== id));
+    const charToDelete = library.find(c => c.id === id);
+    if (window.confirm(`"${charToDelete?.name || 'Bu karakter'}" adlı karakteri silmek istediğinize emin misiniz?`)) {
+      const updatedLibrary = library.filter(c => c.id !== id);
+      saveLibrary(updatedLibrary);
+      if (activeCharacterId === id) {
+        setActiveCharacterId(null);
+      }
+    }
   };
 
   // Build the MAIN dicebear option payload for the preview
@@ -170,13 +259,11 @@ function App() {
     Object.keys(optsObj).forEach(key => {
       if (Array.isArray(optsObj[key]) && optsObj[key].length > 0) {
         if (optsObj[key][0] === "none") {
-          // Explicitly turn off the feature
           if (key === 'top') payload.topProbability = 0;
           if (key === 'facialHair') payload.facialHairProbability = 0;
           if (key === 'accessories') payload.accessoriesProbability = 0;
         } else {
           payload[key] = optsObj[key];
-          // Force probability to 100% when specifically selected
           if (key === 'top') payload.topProbability = 100;
           if (key === 'facialHair') payload.facialHairProbability = 100;
           if (key === 'accessories') payload.accessoriesProbability = 100;
@@ -184,7 +271,6 @@ function App() {
       }
     });
     
-    // Global rule for female gender
     if (customGender === 'female') {
       payload.facialHairProbability = 0;
     }
@@ -214,36 +300,75 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
-  const handleDownloadPNG = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512;
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    const svgBlob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
-    
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0, 512, 512);
-      URL.revokeObjectURL(url);
-      const pngUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = pngUrl;
-      link.download = `${characterName || 'avatar'}.png`;
-      link.click();
-    };
-    img.src = url;
+  const svgToPngBlob = (svgString) => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, 512, 512);
+        URL.revokeObjectURL(url);
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, 'image/png');
+      };
+      img.src = url;
+    });
   };
 
-  // Filter tabs based on gender
+  const handleDownloadPNG = async () => {
+    const blob = await svgToPngBlob(svgContent);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${characterName || 'avatar'}.png`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportZip = async () => {
+    if (library.length === 0) return;
+    setIsExporting(true);
+    try {
+      const zip = new JSZip();
+      
+      for (let i = 0; i < library.length; i++) {
+        const char = library[i];
+        const payload = getPayloadFromOptions(char.options, char.seed, char.gender || 'any');
+        payload.size = 512;
+        const charSvg = createAvatar(avataaars, payload).toString();
+        const blob = await svgToPngBlob(charSvg);
+        
+        // Sanitize filename
+        const safeName = char.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        zip.file(`${safeName}_${i}.png`, blob);
+      }
+      
+      const zipContent = await zip.generateAsync({ type: 'blob' });
+      saveAs(zipContent, 'avatars_export.zip');
+    } catch (e) {
+      console.error("Failed to export zip", e);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Filter tabs
   const visibleTabs = TABS.filter(t => {
     if (genderFilter === 'female' && t.id === 'facialHair') return false;
+    // Show clothingGraphic only if clothing is graphicShirt
+    if (t.id === 'clothingGraphic' && options.clothing?.[0] !== 'graphicShirt') return false;
     return true;
   });
 
   const activeTabData = visibleTabs.find(t => t.id === activeTab) || visibleTabs[0];
 
-  // Filter options based on gender
+  // Filter options
   let displayedOptions = activeTabData.options;
   if (activeTabData.id === 'top') {
     if (genderFilter === 'male') {
@@ -278,7 +403,6 @@ function App() {
         {/* Left Pane: Preview */}
         <div className="w-full lg:w-[400px] shrink-0 border-r border-slate-200 bg-white p-6 flex flex-col items-center justify-start overflow-y-auto">
           
-          {/* Gender Filter Buttons */}
           <div className="w-full max-w-[280px] bg-slate-100 p-1 rounded-xl flex shadow-inner mb-6">
             <button 
               onClick={() => handleGenderChange('male')}
@@ -300,11 +424,30 @@ function App() {
             </button>
           </div>
 
-          <div className="w-full max-w-[280px] aspect-square rounded-[2rem] bg-slate-50 border border-slate-200 shadow-sm mb-8 overflow-hidden flex items-center justify-center p-2"
+          <div className="w-full max-w-[280px] aspect-square rounded-[2rem] bg-slate-50 border border-slate-200 shadow-sm mb-4 overflow-hidden flex items-center justify-center p-2"
                dangerouslySetInnerHTML={{ __html: svgContent }}
           />
           
           <div className="w-full space-y-4">
+            {/* Emotion Presets */}
+            <div className="flex justify-center gap-2 mb-2">
+              <button onClick={() => setEmotion('default')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 hover:text-slate-700 transition-colors" title="Default">
+                <User size={18} />
+              </button>
+              <button onClick={() => setEmotion('happy')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-green-500 transition-colors" title="Happy">
+                <Smile size={18} />
+              </button>
+              <button onClick={() => setEmotion('sad')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-blue-500 transition-colors" title="Sad">
+                <Frown size={18} />
+              </button>
+              <button onClick={() => setEmotion('angry')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-red-500 transition-colors" title="Angry">
+                <Angry size={18} />
+              </button>
+              <button onClick={() => setEmotion('surprised')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-orange-500 transition-colors" title="Surprised">
+                <AlertCircle size={18} />
+              </button>
+            </div>
+
             <div className="flex gap-2">
               <input 
                 type="text" 
@@ -350,7 +493,6 @@ function App() {
         {/* Right Pane: Options Grid */}
         <div className="flex-1 bg-slate-50 flex flex-col overflow-hidden relative">
           
-          {/* Scrollable Tabs */}
           <div className="px-6 pt-6 pb-0 bg-white border-b border-slate-200 shrink-0">
             <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4">
               {visibleTabs.map(tab => (
@@ -371,7 +513,6 @@ function App() {
           <div className="flex-1 overflow-y-auto p-6">
             <div className="max-w-5xl mx-auto space-y-8">
               
-              {/* Color Palettes for Active Tab */}
               {activeTabData.colorKeys.length > 0 && (
                 <div className="flex flex-wrap gap-8">
                   {activeTabData.colorKeys.map(colorKey => (
@@ -410,15 +551,11 @@ function App() {
                 {displayedOptions.map(optValue => {
                   const isActive = (options[activeTabData.id]?.[0] || 'auto') === optValue || (optValue === 'none' && options[activeTabData.id]?.[0] === 'none');
                   
-                  // Generate thumbnail SVG specifically for this option
                   const thumbOpts = { ...options };
                   thumbOpts[activeTabData.id] = [optValue];
                   const payload = getPayloadFromOptions(thumbOpts);
-                  
-                  // Optimization: Render thumbnails smaller
                   payload.size = 128; 
                   
-                  // Create string
                   const thumbSvg = createAvatar(avataaars, payload).toString();
 
                   return (
@@ -494,6 +631,20 @@ function App() {
                   ))
                 )}
               </div>
+
+              {/* Batch Export Button */}
+              {library.length > 0 && (
+                <div className="p-4 border-t border-slate-200 bg-slate-50">
+                  <button 
+                    onClick={handleExportZip}
+                    disabled={isExporting}
+                    className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors ${isExporting ? 'bg-indigo-300 text-white cursor-wait' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md'}`}
+                  >
+                    <FolderArchive size={20} />
+                    {isExporting ? 'Exporting...' : 'Export All (.zip)'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
