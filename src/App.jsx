@@ -25,7 +25,7 @@ function App() {
   const [librarySearch, setLibrarySearch] = useState('');
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   
-  const { library, saveLibrary, deleteCharacter } = useLibrary();
+  const { library, saveLibrary, deleteCharacter, clearLibrary } = useLibrary();
   const {
     seed, setSeed,
     genderFilter,
@@ -337,6 +337,7 @@ function App() {
           getPayloadFromOptions={getPayloadFromOptions}
           loadCharacter={loadCharacter}
           deleteCharacter={deleteCharacter}
+          clearLibrary={clearLibrary}
           handleExportZip={handleExportZip}
           isExporting={isExporting}
         />

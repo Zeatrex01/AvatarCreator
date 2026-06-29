@@ -24,10 +24,18 @@ export function useLibrary() {
     }
     return library;
   };
+  const clearLibrary = () => {
+    if (window.confirm("Are you sure you want to delete ALL saved characters? This cannot be undone.")) {
+      saveLibrary([]);
+      return [];
+    }
+    return library;
+  };
 
   return {
     library,
     saveLibrary,
-    deleteCharacter
+    deleteCharacter,
+    clearLibrary
   };
 }

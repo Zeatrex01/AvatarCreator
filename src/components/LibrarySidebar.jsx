@@ -13,6 +13,7 @@ export default function LibrarySidebar({
   getPayloadFromOptions,
   loadCharacter,
   deleteCharacter,
+  clearLibrary,
   handleExportZip,
   isExporting
 }) {
@@ -34,9 +35,16 @@ export default function LibrarySidebar({
                 <p className="text-xs text-slate-500 font-medium">{library.length} saved characters</p>
               </div>
             </div>
-            <button onClick={onClose} className="p-2.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 rounded-xl transition-all">
-              <X size={20} />
-            </button>
+            <div className="flex items-center gap-1">
+              {library.length > 0 && (
+                <button onClick={clearLibrary} className="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" title="Clear All">
+                  <Trash2 size={20} />
+                </button>
+              )}
+              <button onClick={onClose} className="p-2.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 rounded-xl transition-all" title="Close Library">
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           {/* Search Bar */}

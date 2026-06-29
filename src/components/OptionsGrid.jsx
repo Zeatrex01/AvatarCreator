@@ -52,11 +52,30 @@ export default function OptionsGrid({
                   <div className="flex flex-wrap gap-1.5 max-w-sm">
                     <button 
                       onClick={() => handleOptionChange(colorKey, '')}
-                      className={`w-7 h-7 rounded-full border flex items-center justify-center transition-transform hover:scale-110 ${!options[colorKey] || options[colorKey].length === 0 ? 'border-indigo-600 ring-2 ring-indigo-600/20 shadow-sm' : 'border-slate-300 bg-white'}`}
+                      className={`w-7 h-7 rounded-full border flex items-center justify-center transition-transform hover:scale-110 shrink-0 ${!options[colorKey] || options[colorKey].length === 0 ? 'border-indigo-600 ring-2 ring-indigo-600/20 shadow-sm' : 'border-slate-300 bg-white'}`}
                       title="Auto (Random)"
                     >
                       <span className="text-[10px] text-slate-500">Auto</span>
                     </button>
+                    
+                    {/* Custom Hex Color Picker */}
+                    <label 
+                      className={`relative w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-110 shrink-0 shadow-sm overflow-hidden ${options[colorKey]?.[0] && !colorOptions.includes(options[colorKey]?.[0]) && options[colorKey]?.[0] !== 'transparent' ? 'ring-2 ring-indigo-600/50 scale-110' : 'border border-slate-300'}`}
+                      style={{
+                        background: options[colorKey]?.[0] && !colorOptions.includes(options[colorKey]?.[0]) && options[colorKey]?.[0] !== 'transparent'
+                          ? `#${options[colorKey][0]}` 
+                          : 'conic-gradient(from 180deg at 50% 50%, #ff0000 0%, #ff8000 12.5%, #ffff00 25%, #80ff00 37.5%, #00ff00 50%, #00ff80 62.5%, #00ffff 75%, #0080ff 87.5%, #0000ff 100%)'
+                      }}
+                      title="Custom Color"
+                    >
+                      <input 
+                        type="color"
+                        value={`#${options[colorKey]?.[0] || 'ffffff'}`}
+                        onChange={(e) => handleOptionChange(colorKey, e.target.value.replace('#', ''))}
+                        className="absolute inset-[-10px] w-[50px] h-[50px] opacity-0 cursor-pointer"
+                      />
+                    </label>
+
                     {colorOptions.map(color => (
                       <button
                         key={color}
