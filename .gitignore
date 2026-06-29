@@ -137,4 +137,6 @@ dist
 /Assets/Assets/Character_portraits
 /dist-electron
 server_manager.bat
-server_manager.bat
+GeneratedCharacters/
+Assets/
+test.svg
