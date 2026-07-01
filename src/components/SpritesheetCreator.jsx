@@ -36,6 +36,15 @@ export default function SpritesheetCreator({ library, getPayloadFromOptions, onD
   // ── Crop overlay ──────────────────────────────────────────────────────────
   const [croppingId, setCroppingId] = useState(null); // file ID being cropped
 
+  // ── Derived sheet info (calculated early for hook) ────────────────────────
+  const sourceCount = activeTab === 'library' ? library.length : files.length;
+  const numCols     = columns > 0 ? columns : Math.max(1, sourceCount);
+  const numRows     = sourceCount > 0 ? Math.ceil(sourceCount / numCols) : 0;
+  const sheetW      = numCols * cellWidth  + (numCols  + 1) * padding;
+  const sheetH      = numRows * cellHeight + (numRows  + 1) * padding;
+  // Browser safety limit: max 8192px on any side, or 32 Megapixels total area
+  const isOversized = sheetW > 8192 || sheetH > 8192 || (sheetW * sheetH > 33554432);
+
   // ── Canvas generation (SRP hook) ──────────────────────────────────────────
   const { previewUrl, isGenerating } = useSpritesheetCanvas({
     activeTab,
@@ -48,6 +57,7 @@ export default function SpritesheetCreator({ library, getPayloadFromOptions, onD
     padding,
     bgColor,
     objectFit,
+    isOversized,
   });
 
   // ── Preview zoom ──────────────────────────────────────────────────────────
@@ -75,12 +85,7 @@ export default function SpritesheetCreator({ library, getPayloadFromOptions, onD
     setCroppingId(null);
   }, [replaceFile]);
 
-  // ── Derived sheet info ────────────────────────────────────────────────────
-  const sourceCount = activeTab === 'library' ? library.length : files.length;
-  const numCols     = columns > 0 ? columns : Math.max(1, sourceCount);
-  const numRows     = sourceCount > 0 ? Math.ceil(sourceCount / numCols) : 0;
-  const sheetW      = numCols * cellWidth  + (numCols  + 1) * padding;
-  const sheetH      = numRows * cellHeight + (numRows  + 1) * padding;
+  // (Derived info moved up for the hook dependency)
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -129,9 +134,9 @@ export default function SpritesheetCreator({ library, getPayloadFromOptions, onD
               </div>
             </div>
 
-            {/* Cell size */}
+            {/* Frame size */}
             <div className="flex gap-2">
-              {[['Cell W', cellWidth, setCellWidth], ['Cell H', cellHeight, setCellHeight]].map(([label, val, set]) => (
+              {[['Frame W', cellWidth, setCellWidth], ['Frame H', cellHeight, setCellHeight]].map(([label, val, set]) => (
                 <div key={label} className="flex flex-col gap-1 flex-1">
                   <label className="text-xs text-indigo-700 font-medium">{label} (px)</label>
                   <input type="number" min="16" max="2048" value={val}
@@ -189,8 +194,24 @@ export default function SpritesheetCreator({ library, getPayloadFromOptions, onD
 
           {/* Sheet size info */}
           {sourceCount > 0 && (
-            <div className="mt-3 p-2 bg-white rounded-lg border border-indigo-100 text-xs text-slate-600 font-medium">
-              {numRows} × {numCols} &mdash; {sourceCount} frames &mdash; {sheetW} × {sheetH} px
+            <div className={`mt-3 p-2.5 bg-white rounded-lg border text-xs flex flex-col gap-1 ${isOversized ? 'border-red-300 text-red-700' : 'border-indigo-100 text-slate-600'}`}>
+              <div className="flex justify-between">
+                <span className={isOversized ? "text-red-400" : "text-slate-400"}>Per frame</span>
+                <span className="font-semibold">{cellWidth} × {cellHeight} px</span>
+              </div>
+              <div className="flex justify-between">
+                <span className={isOversized ? "text-red-400" : "text-slate-400"}>Grid</span>
+                <span className="font-semibold">{numRows} rows × {numCols} cols ({sourceCount} frames)</span>
+              </div>
+              <div className={`flex justify-between border-t pt-1 mt-0.5 ${isOversized ? 'border-red-200' : 'border-indigo-100'}`}>
+                <span className={`font-medium ${isOversized ? 'text-red-500' : 'text-slate-500'}`}>Total Sheet</span>
+                <span className={`font-bold ${isOversized ? 'text-red-600' : 'text-indigo-700'}`}>{sheetW} × {sheetH} px</span>
+              </div>
+              {isOversized && (
+                <div className="mt-1 text-[10px] text-red-600 font-bold bg-red-50 p-1.5 rounded text-center">
+                  Size too large! Generation paused to prevent browser crash (Max 8192px).
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -278,10 +299,14 @@ export default function SpritesheetCreator({ library, getPayloadFromOptions, onD
             />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
-              <Grid size={48} className="opacity-20 mb-3" />
-              <p className="font-medium">No Preview</p>
-              <p className="text-sm mt-1">
-                {activeTab === 'library' ? 'Add characters to your library first' : 'Upload images above'}
+              <Grid size={48} className={`mb-3 ${isOversized ? 'opacity-50 text-red-400' : 'opacity-20'}`} />
+              <p className={`font-medium ${isOversized ? 'text-red-500' : ''}`}>
+                {isOversized ? 'Oversized Sheet' : 'No Preview'}
+              </p>
+              <p className="text-sm mt-1 text-center px-4">
+                {isOversized
+                  ? 'Reduce frame size or padding to continue.'
+                  : activeTab === 'library' ? 'Add characters to your library first' : 'Upload images above'}
               </p>
             </div>
           )}

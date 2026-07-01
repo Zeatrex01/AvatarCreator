@@ -68,6 +68,7 @@ export function useSpritesheetCanvas({
   padding,
   bgColor,
   objectFit,
+  isOversized,
 }) {
   const [previewUrl,   setPreviewUrl]   = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -79,6 +80,11 @@ export function useSpritesheetCanvas({
     // Debounce: cancel previous scheduled run on rapid changes
     const timer = setTimeout(async () => {
       if (cancelled) return;
+      if (isOversized) {
+        setPreviewUrl(null);
+        setIsGenerating(false);
+        return;
+      }
       setIsGenerating(true);
 
       try {
@@ -138,7 +144,7 @@ export function useSpritesheetCanvas({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [activeTab, library, getPayloadFromOptions, customFiles, columns, cellWidth, cellHeight, padding, bgColor, objectFit]);
+  }, [activeTab, library, getPayloadFromOptions, customFiles, columns, cellWidth, cellHeight, padding, bgColor, objectFit, isOversized]);
 
   return { previewUrl, isGenerating };
 }
