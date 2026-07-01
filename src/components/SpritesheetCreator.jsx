@@ -88,7 +88,7 @@ export default function SpritesheetCreator({ library, getPayloadFromOptions, onD
     <div className="flex flex-col lg:flex-row gap-6 flex-1">
 
       {/* ── Left panel ──────────────────────────────────────────── */}
-      <div className="w-full lg:w-1/3 flex flex-col gap-4 overflow-y-auto max-h-[65vh] pr-1">
+      <div className="w-full lg:w-1/3 flex flex-col gap-4 lg:overflow-y-auto lg:max-h-[65vh] pr-1">
 
         {/* Source tabs */}
         <div className="flex bg-slate-100 p-1 rounded-xl shrink-0">

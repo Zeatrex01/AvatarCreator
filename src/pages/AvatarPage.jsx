@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { createAvatar } from '@dicebear/core';
 import { avataaars } from '@dicebear/collection';
-import { Image as ImageIcon, Library, Scissors } from 'lucide-react';
+import { Image as ImageIcon, Library, Scissors, Grid } from 'lucide-react';
 
 import PreviewPane    from '../components/PreviewPane';
 import OptionsGrid    from '../components/OptionsGrid';
@@ -232,6 +233,10 @@ export default function AvatarPage({
 
       {/* Mobile bottom nav */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-40 flex items-center justify-around px-1 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <Link to="/sprite" className="flex flex-col items-center justify-center p-2 text-slate-500 hover:text-indigo-600 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mb-1"><Grid size={18} className="text-emerald-600" /></div>
+          <span className="text-[10px] font-medium">Sprite</span>
+        </Link>
         <button onClick={handleDownloadTemplate} className="flex flex-col items-center justify-center p-2 text-slate-500 hover:text-indigo-600 transition-colors">
           <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mb-1"><Scissors size={18} className="text-blue-600" /></div>
           <span className="text-[10px] font-medium">Şablon</span>
